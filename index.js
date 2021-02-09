@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // API calls
-app.get('/api/hello', (req, res) => {
+app.get('/', (req, res) => {
   res.send({ express: 'Testing a new message' });
 });
 
