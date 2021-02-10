@@ -8,7 +8,7 @@ const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const { response } = require("express");
-require("dotenv").config();
+// require("dotenv").config();
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
@@ -37,8 +37,8 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public", "css")));
 app.use(bodyParser.json());
 
-app.listen(port);
-console.log(`listening on port ${port}`);
+app.listen(process.env.PORT || 5000);
+// console.log(`listening on port ${port}`);
 
 
 
