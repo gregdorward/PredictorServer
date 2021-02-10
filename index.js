@@ -37,8 +37,8 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public", "css")));
 app.use(bodyParser.json());
 
-app.listen(5000);
-console.log("listening on port 5000");
+app.listen(port);
+console.log(`listening on port ${port}`);
 
 
 
