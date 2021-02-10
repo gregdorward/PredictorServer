@@ -36,8 +36,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 
-app.listen(process.env.PORT || 5000);
-// console.log(`listening on port ${port}`);
+app.listen(process.env.PORT || 5000, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});
 
 app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>")
@@ -104,9 +105,3 @@ const job2 = schedule.scheduleJob("59 23 * * *", async function () {
         console.log('Rename complete!');
       });
 });
-
-
-
-
-
-
