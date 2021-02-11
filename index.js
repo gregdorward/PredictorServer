@@ -7,8 +7,7 @@ const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const { response } = require("express");
-require("dotenv").config();
-const port = process.env.PORT || 5000;
+// const port = process.env.PORT || 5000;
 
 
 console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
