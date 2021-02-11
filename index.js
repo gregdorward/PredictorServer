@@ -36,9 +36,8 @@ const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=$
 
 app.use(
   cors({
-    origin: "https://gregdorward.github.io/Predictor",
-    origin: "http://localhost:3000",
-  })
+    origin: "https://gregdorward.github.io/Predictor"
+    })
 );
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
