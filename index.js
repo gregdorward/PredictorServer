@@ -209,7 +209,7 @@ async function getFixtureList(day, string) {
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [new schedule.Range(00, 12)];
-rule.minute = 50;
+rule.minute = 54;
 
 const job = schedule.scheduleJob(rule, async function () {
   await getFixtureList(today, "today");
@@ -218,7 +218,7 @@ const job = schedule.scheduleJob(rule, async function () {
   console.log("automatically fetched tomorrow's games");
 });
 
-const job2 = schedule.scheduleJob("52 10 * * *", async function () {
+const job2 = schedule.scheduleJob("55 10 * * *", async function () {
   fs.rename("today.json", "yesterday.json", (err) => {
     if (err) throw err;
     console.log("Rename 1 complete!");
