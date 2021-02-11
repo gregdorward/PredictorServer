@@ -1,6 +1,5 @@
 var express = require("express");
 var app = express();
-const port = process.env.PORT || 5000;
 var fs = require("fs");
 var path = require("path");
 var cors = require("cors");
@@ -9,6 +8,11 @@ var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const { response } = require("express");
 require("dotenv").config();
+const port = process.env.PORT || 5000;
+
+
+console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+
 
 const apiKey = process.env.API_KEY
 
