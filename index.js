@@ -8,7 +8,7 @@ const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const { response } = require("express");
-// require("dotenv").config();
+require("dotenv").config();
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
@@ -200,6 +200,7 @@ async function getFixtureList(day, string) {
     .then((res) =>
       fs.writeFile(`${string}.json`, JSON.stringify(res.data), function (err) {
         console.log(`file ${string} written`)
+
         if (err) return console.log(err);
       })
     )
@@ -208,7 +209,7 @@ async function getFixtureList(day, string) {
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [new schedule.Range(00, 12)];
-rule.minute = 19;
+rule.minute = 50;
 
 const job = schedule.scheduleJob(rule, async function () {
   await getFixtureList(today, "today");
@@ -217,7 +218,7 @@ const job = schedule.scheduleJob(rule, async function () {
   console.log("automatically fetched tomorrow's games");
 });
 
-const job2 = schedule.scheduleJob("59 23 * * *", async function () {
+const job2 = schedule.scheduleJob("52 10 * * *", async function () {
   fs.rename("today.json", "yesterday.json", (err) => {
     if (err) throw err;
     console.log("Rename 1 complete!");

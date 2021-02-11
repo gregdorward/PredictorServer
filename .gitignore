@@ -1,3 +1,12 @@
 node_modules
 npm-debug.log
 .env
+today.json
+tomorrow.json
+yesterday.json
+fixedPredictions5.json
+fixedPredictions5tomorrow.json
+fixedPredictions6.json
+fixedPredictions6tomorrow.json
+fixedPredictions10.json
+fixedPredictions10tomorrow.json
