@@ -10,6 +10,9 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 require("dotenv").config();
 
+const apiKey = process.env.API_KEY
+
+
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
 tomorrowsDate.setDate(new Date().getDate() + 1);
@@ -27,9 +30,9 @@ let [
   yesterdayYear,
 ] = yesterdaysDate.toLocaleDateString("en-US").split("/");
 
-const yesterday = `https://api.footystats.org/todays-matches?key=${process.env.REACT_APP_API_KEY}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
-const today = `https://api.footystats.org/todays-matches?key=${process.env.REACT_APP_API_KEY}&date=${year}-${day}-${month}`;
-const tomorrow = `https://api.footystats.org/todays-matches?key=${process.env.REACT_APP_API_KEY}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
+const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
+const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
+const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
 app.use(
   cors({
@@ -47,6 +50,7 @@ app.listen(process.env.PORT || 5000, function () {
     this.address().port,
     app.settings.env
   );
+  console.log(apiKey)
 });
 
 app.get("/", function (req, res) {
@@ -55,7 +59,7 @@ app.get("/", function (req, res) {
 
 app.get("/todaysFixtures", (req, res) => {
   fs.readFile("today.json", function (err, data) {
-    if (err) return console.log(err);
+    if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
     res.send({ fixtures });
   });
@@ -63,7 +67,7 @@ app.get("/todaysFixtures", (req, res) => {
 
 app.get("/tomorrowsFixtures", (req, res) => {
   fs.readFile("tomorrow.json", function (err, data) {
-    if (err) return console.log(err);
+    if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
     res.send({ fixtures });
   });
@@ -71,16 +75,16 @@ app.get("/tomorrowsFixtures", (req, res) => {
 
 app.get("/yesterdaysFixtures", (req, res) => {
   fs.readFile("yesterday.json", function (err, data) {
-    if (err) return console.log(err);
+    if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
     res.send({ fixtures });
   });
 });
 
-app.post("/postPredictions5today", (req, res) => {
+app.post("/postPredictions5todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions5today.json`,
       JSON.stringify(req.body),
@@ -97,7 +101,7 @@ app.post("/postPredictions5today", (req, res) => {
 app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions5tomorrow.json`,
       JSON.stringify(req.body),
@@ -114,7 +118,7 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
 app.post("/postPredictions6todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions6today.json`,
       JSON.stringify(req.body),
@@ -131,7 +135,7 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
 app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions6tomorrow.json`,
       JSON.stringify(req.body),
@@ -148,7 +152,7 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
 app.post("/postPredictions10todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions10today.json`,
       JSON.stringify(req.body),
@@ -165,7 +169,7 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
 app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 14) {
+  if (hour <= 17) {
     fs.writeFile(
       `fixedPredictions10tomorrow.json`,
       JSON.stringify(req.body),
@@ -179,14 +183,79 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
   }
 });
 
-app.get("/yesterdaysPredictions5", (req, res) => {
+app.get("/yesterdaysFixturesPredictions5", (req, res) => {
   fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
-    if (err) return console.log(err);
+    if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
     res.send({ fixtures });
   });
 });
 
+app.get("/yesterdaysFixturesPredictions6", (req, res) => {
+  fs.readFile("fixedPredictions6yesterday.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+app.get("/yesterdaysFixturesPredictions10", (req, res) => {
+  fs.readFile("fixedPredictions10yesterday.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+
+app.get("/todaysFixturesPredictions5", (req, res) => {
+  fs.readFile("fixedPredictions5today.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+app.get("/todaysFixturesPredictions6", (req, res) => {
+  fs.readFile("fixedPredictions6today.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+app.get("/todaysFixturesPredictions10", (req, res) => {
+  fs.readFile("fixedPredictions10today.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+
+app.get("/tomorrowsFixturesPredictions5", (req, res) => {
+  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+app.get("/tomorrowsFixturesPredictions6", (req, res) => {
+  fs.readFile("fixedPredictions6tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
+
+app.get("/tomorrowsFixturesPredictions10", (req, res) => {
+  fs.readFile("fixedPredictions10tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+});
 
 async function getFixtureList(day, string) {
   await fetch(`https://safe-caverns-99679.herokuapp.com/${day}`, {
@@ -209,7 +278,7 @@ async function getFixtureList(day, string) {
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [new schedule.Range(00, 12)];
-rule.minute = 54;
+rule.minute = 00;
 
 const job = schedule.scheduleJob(rule, async function () {
   await getFixtureList(today, "today");
@@ -218,7 +287,9 @@ const job = schedule.scheduleJob(rule, async function () {
   console.log("automatically fetched tomorrow's games");
 });
 
-const job2 = schedule.scheduleJob("55 10 * * *", async function () {
+
+
+const job2 = schedule.scheduleJob("59 23 * * *", async function () {
   fs.rename("today.json", "yesterday.json", (err) => {
     if (err) throw err;
     console.log("Rename 1 complete!");
