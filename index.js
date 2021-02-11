@@ -208,7 +208,7 @@ async function getFixtureList(day, string) {
 
 const rule = new schedule.RecurrenceRule();
 rule.hour = [new schedule.Range(00, 12)];
-rule.minute = 00;
+rule.minute = 19;
 
 const job = schedule.scheduleJob(rule, async function () {
   await getFixtureList(today, "today");
