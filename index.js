@@ -93,7 +93,7 @@ app.get("/yesterdaysFixtures", (req, res) => {
 app.post("/postPredictions5todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions5today.json`,
       JSON.stringify(req.body),
@@ -110,7 +110,7 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
 app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions5tomorrow.json`,
       JSON.stringify(req.body),
@@ -127,7 +127,7 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
 app.post("/postPredictions6todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions6today.json`,
       JSON.stringify(req.body),
@@ -144,7 +144,7 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
 app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions6tomorrow.json`,
       JSON.stringify(req.body),
@@ -161,7 +161,7 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
 app.post("/postPredictions10todaysFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions10today.json`,
       JSON.stringify(req.body),
@@ -178,7 +178,7 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
 app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
   var now = new Date();
   var hour = now.getHours();
-  if (hour <= 17) {
+  if (hour <= 14) {
     fs.writeFile(
       `fixedPredictions10tomorrow.json`,
       JSON.stringify(req.body),
