@@ -9,9 +9,9 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 // const port = process.env.PORT || 5000;
 
+const apiKey = process.env.API_KEY;
 
-const apiKey = process.env.API_KEY
-
+console.log(process.env.NODE_ENV);
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
@@ -34,14 +34,24 @@ const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
-app.use(
-  cors({
-    origin: "https://gregdorward.github.io"
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    cors({
+      origin: "https://gregdorward.github.io",
     })
-);
+  );
+} else {
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+    })
+  );
+}
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
-app.use(bodyParser.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb" }));
 
 app.listen(process.env.PORT || 5000, function () {
   console.log(
@@ -49,7 +59,7 @@ app.listen(process.env.PORT || 5000, function () {
     this.address().port,
     app.settings.env
   );
-  console.log(apiKey)
+  console.log(apiKey);
 });
 
 app.get("/", function (req, res) {
@@ -91,9 +101,9 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -108,9 +118,9 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -125,9 +135,9 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -142,9 +152,9 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -159,9 +169,9 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -176,9 +186,9 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
         if (err) return console.log(err);
       }
     );
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
-    res.sendStatus(400)
+    res.sendStatus(400);
   }
 });
 
@@ -206,7 +216,6 @@ app.get("/yesterdaysFixturesPredictions10", (req, res) => {
   });
 });
 
-
 app.get("/todaysFixturesPredictions5", (req, res) => {
   fs.readFile("fixedPredictions5today.json", function (err, data) {
     if (err) res.sendStatus(404);
@@ -230,7 +239,6 @@ app.get("/todaysFixturesPredictions10", (req, res) => {
     res.send({ fixtures });
   });
 });
-
 
 app.get("/tomorrowsFixturesPredictions5", (req, res) => {
   fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
@@ -267,7 +275,7 @@ async function getFixtureList(day, string) {
     .then((res) => res.json())
     .then((res) =>
       fs.writeFile(`${string}.json`, JSON.stringify(res.data), function (err) {
-        console.log(`file ${string} written`)
+        console.log(`file ${string} written`);
 
         if (err) return console.log(err);
       })
@@ -275,58 +283,122 @@ async function getFixtureList(day, string) {
     .catch((err) => console.log(err));
 }
 
-const rule = new schedule.RecurrenceRule();
-rule.hour = [new schedule.Range(00, 12)];
-rule.minute = 00;
+// const rule = new schedule.RecurrenceRule();
+// rule.hour = 00;
+// rule.minute = 01;
 
-const job = schedule.scheduleJob(rule, async function () {
-  await getFixtureList(today, "today");
-  await getFixtureList(tomorrow, "tomorrow");
-  console.log("automatically fetched today's games");
-  console.log("automatically fetched tomorrow's games");
-});
+// const job = schedule.scheduleJob(rule, async function () {
+//   await getFixtureList(today, "today");
+//   await getFixtureList(tomorrow, "tomorrow");
+//   console.log("automatically fetched today's games");
+//   console.log("automatically fetched tomorrow's games");
+// });
 
 
+const renameTodays5Predictions = schedule.scheduleJob(
+  "00 00 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions5today.json",
+      "fixedPredictions5yesterday.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 1 complete!");
+      }
+    );
+  }
+);
 
-const job2 = schedule.scheduleJob("59 23 * * *", async function () {
-  fs.rename("today.json", "yesterday.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 1 complete!");
-  });
+const renameTodays6Predictions = schedule.scheduleJob(
+  "20 00 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions6today.json",
+      "fixedPredictions6yesterday.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 2 complete!");
+      }
+    );
+  }
+);
 
-  fs.rename("tomorrow.json", "today.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 2 complete!");
-  });
+const renameTodays10Predictions = schedule.scheduleJob(
+  "30 00 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions10today.json",
+      "fixedPredictions10yesterday.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 3 complete!");
+      }
+    );
+  }
+);
 
-  fs.rename("fixedPredictions5today", "fixedPredictions5yesterday.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 3 complete!");
-  });
+const renameTomorrows5Predictions = schedule.scheduleJob(
+  "40 00 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions5tomorrow.json",
+      "fixedPredictions5today.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 4 complete!");
+      }
+    );
+  }
+);
 
-  fs.rename("fixedPredictions6today", "fixedPredictions6yesterday.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 4 complete!");
-  });
+const renameTomorrows6Predictions = schedule.scheduleJob(
+  "50 00 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions6tomorrow.json",
+      "fixedPredictions6today.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 5 complete!");
+      }
+    );
+  }
+);
 
-  fs.rename("fixedPredictions10today", "fixedPredictions10yesterday.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 5 complete!");
-  });
+const renameTomorrows10Predictions = schedule.scheduleJob(
+  "00 01 00 * * *",
+  async function () {
+    fs.rename(
+      "fixedPredictions10tomorrow.json",
+      "fixedPredictions10today.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 6 complete!");
+      }
+    );
+  }
+);
 
-  fs.rename("fixedPredictions5tomorrow", "fixedPredictions5today.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 6 complete!");
-  });
-
-  fs.rename("fixedPredictions6tomorrow", "fixedPredictions6today.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 7 complete!");
-  });
-
-  fs.rename("fixedPredictions10tomorrow", "fixedPredictions10today.json", (err) => {
-    if (err) throw err;
-    console.log("Rename 8 complete!");
-  });
-
+const writeTomorrowsPredictions = schedule.scheduleJob("10 01 00 * * *", async function () {
+  fs.writeFile(
+    "fixedPredictions5tomorrow.json",
+    '{"predictions":[]}',
+    function (err) {
+      console.log(`file fixedPredictions5tomorrow.json written`);
+    }
+  );
+  fs.writeFile(
+    "fixedPredictions6tomorrow.json",
+    '{"predictions":[]}',
+    function (err) {
+      console.log(`file fixedPredictions6tomorrow.json written`);
+    }
+  );
+  fs.writeFile(
+    "fixedPredictions10tomorrow.json",
+    '{"predictions":[]}',
+    function (err) {
+      console.log(`file fixedPredictions10tomorrow.json written`);
+    }
+  );
 });
