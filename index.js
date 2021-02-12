@@ -193,6 +193,8 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
 });
 
 app.get("/yesterdaysFixturesPredictions5", (req, res) => {
+  var now = new Date();
+  var hour = now.getHours();
   fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -241,27 +243,30 @@ app.get("/todaysFixturesPredictions10", (req, res) => {
 });
 
 app.get("/tomorrowsFixturesPredictions5", (req, res) => {
-  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
+  res.sendStatus(400)
+  // fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+  //   if (err) res.sendStatus(404);
+  //   const fixtures = JSON.parse(data);
+  //   res.send({ fixtures });
+  // });
 });
 
 app.get("/tomorrowsFixturesPredictions6", (req, res) => {
-  fs.readFile("fixedPredictions6tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
+  res.sendStatus(400)
+  // fs.readFile("fixedPredictions6tomorrow.json", function (err, data) {
+  //   if (err) res.sendStatus(404);
+  //   const fixtures = JSON.parse(data);
+  //   res.send({ fixtures });
+  // });
 });
 
 app.get("/tomorrowsFixturesPredictions10", (req, res) => {
-  fs.readFile("fixedPredictions10tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
+  res.sendStatus(400)
+  // fs.readFile("fixedPredictions10tomorrow.json", function (err, data) {
+  //   if (err) res.sendStatus(404);
+  //   const fixtures = JSON.parse(data);
+  //   res.send({ fixtures });
+  // });
 });
 
 async function getFixtureList(day, string) {
