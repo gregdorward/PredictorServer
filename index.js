@@ -157,13 +157,9 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
 });
 
 app.post("/allForm", (req, res) => {
-  fs.writeFile(
-    `allForm.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) return console.log(err);
-    }
-  );
+  fs.writeFile(`allForm.json`, JSON.stringify(req.body), function (err) {
+    if (err) return console.log(err);
+  });
   res.sendStatus(200);
 });
 
@@ -312,18 +308,26 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 55 22 * * *",
+  "40 05 23 * * *",
+  async function () {
+    fs.open("fixedPredictions5tomorrow.json", "r", (err, fd) => {
+      if (err) {
+        if (err.code === "ENOENT") {
+          console.error("myfile does not exist");
+          return;
+        }
 
+        throw err;
+      }
 
+      console.log(fd);
+    });
+  }
+);
 
-  function () {
-    fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-      if (err) console.log(err);
-      const fixtures = JSON.parse(data);
-      console.log("reading 1st time")
-      console.log(fixtures)
-    }),
-
+const renameTomorrows5Predictions = schedule.scheduleJob(
+  "40 39 22 * * *",
+  async function () {
     fs.rename(
       "fixedPredictions5tomorrow.json",
       "fixedPredictions5today.json",
@@ -332,16 +336,7 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
         console.log("Rename 4 complete!");
       }
     );
-
-    fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-      if (err) console.log(err);
-      const fixtures = JSON.parse(data);
-      console.log("reading 2nd time")
-      console.log(fixtures)
-    })
-  },
-
-
+  }
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
