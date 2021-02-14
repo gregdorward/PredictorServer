@@ -308,7 +308,7 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 05 23 * * *",
+  "40 06 23 * * *",
   async function () {
     fs.open("fixedPredictions5tomorrow.json", "r", (err, fd) => {
       if (err) {
@@ -325,19 +325,19 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
   }
 );
 
-const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 39 22 * * *",
-  async function () {
-    fs.rename(
-      "fixedPredictions5tomorrow.json",
-      "fixedPredictions5today.json",
-      (err) => {
-        if (err) throw err;
-        console.log("Rename 4 complete!");
-      }
-    );
-  }
-);
+// const renameTomorrows5Predictions = schedule.scheduleJob(
+//   "40 39 22 * * *",
+//   async function () {
+//     fs.rename(
+//       "fixedPredictions5tomorrow.json",
+//       "fixedPredictions5today.json",
+//       (err) => {
+//         if (err) throw err;
+//         console.log("Rename 4 complete!");
+//       }
+//     );
+//   }
+// );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
   "50 39 22 * * *",
