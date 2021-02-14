@@ -312,16 +312,18 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 51 22 * * *",
+  "40 53 22 * * *",
 
-  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    console.log("reading 1st time")
-    console.log(fixtures)
-  }),
 
-  async function () {
+
+  function () {
+    fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+      if (err) res.sendStatus(404);
+      const fixtures = JSON.parse(data);
+      console.log("reading 1st time")
+      console.log(fixtures)
+    }),
+
     fs.rename(
       "fixedPredictions5tomorrow.json",
       "fixedPredictions5today.json",
@@ -330,14 +332,16 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
         console.log("Rename 4 complete!");
       }
     );
+
+    fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+      if (err) res.sendStatus(404);
+      const fixtures = JSON.parse(data);
+      console.log("reading 2nd time")
+      console.log(fixtures)
+    })
   },
 
-  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    console.log("reading 2nd time")
-    console.log(fixtures)
-  })
+
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
