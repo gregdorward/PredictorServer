@@ -91,110 +91,83 @@ app.get("/yesterdaysFixtures", (req, res) => {
 });
 
 app.post("/postPredictions5todaysFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions5today.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions5today.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions5tomorrow.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions5tomorrow.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.post("/postPredictions6todaysFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions6today.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions6today.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions6tomorrow.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions6tomorrow.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.post("/postPredictions10todaysFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions10today.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions10today.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
-  if (hour <= 14) {
-    fs.writeFile(
-      `fixedPredictions10tomorrow.json`,
-      JSON.stringify(req.body),
-      function (err) {
-        if (err) return console.log(err);
-      }
-    );
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+  fs.writeFile(
+    `fixedPredictions10tomorrow.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
+});
+
+app.post("/allForm", (req, res) => {
+  fs.writeFile(
+    `allForm.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) return console.log(err);
+    }
+  );
+  res.sendStatus(200);
 });
 
 app.get("/yesterdaysFixturesPredictions5", (req, res) => {
-  var now = new Date();
-  var hour = now.getHours();
   fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -296,7 +269,6 @@ async function getFixtureList(day, string) {
 //   console.log("automatically fetched tomorrow's games");
 // });
 
-
 const renameTodays5Predictions = schedule.scheduleJob(
   "00 00 00 * * *",
   async function () {
@@ -381,26 +353,29 @@ const renameTomorrows10Predictions = schedule.scheduleJob(
   }
 );
 
-const writeTomorrowsPredictions = schedule.scheduleJob("10 01 00 * * *", async function () {
-  fs.writeFile(
-    "fixedPredictions5tomorrow.json",
-    '{"predictions":[]}',
-    function (err) {
-      console.log(`file fixedPredictions5tomorrow.json written`);
-    }
-  );
-  fs.writeFile(
-    "fixedPredictions6tomorrow.json",
-    '{"predictions":[]}',
-    function (err) {
-      console.log(`file fixedPredictions6tomorrow.json written`);
-    }
-  );
-  fs.writeFile(
-    "fixedPredictions10tomorrow.json",
-    '{"predictions":[]}',
-    function (err) {
-      console.log(`file fixedPredictions10tomorrow.json written`);
-    }
-  );
-});
+const writeTomorrowsPredictions = schedule.scheduleJob(
+  "10 01 00 * * *",
+  async function () {
+    fs.writeFile(
+      "fixedPredictions5tomorrow.json",
+      '{"predictions":[]}',
+      function (err) {
+        console.log(`file fixedPredictions5tomorrow.json written`);
+      }
+    );
+    fs.writeFile(
+      "fixedPredictions6tomorrow.json",
+      '{"predictions":[]}',
+      function (err) {
+        console.log(`file fixedPredictions6tomorrow.json written`);
+      }
+    );
+    fs.writeFile(
+      "fixedPredictions10tomorrow.json",
+      '{"predictions":[]}',
+      function (err) {
+        console.log(`file fixedPredictions10tomorrow.json written`);
+      }
+    );
+  }
+);
