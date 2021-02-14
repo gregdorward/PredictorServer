@@ -312,13 +312,13 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 53 22 * * *",
+  "40 55 22 * * *",
 
 
 
   function () {
     fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-      if (err) res.sendStatus(404);
+      if (err) console.log(err);
       const fixtures = JSON.parse(data);
       console.log("reading 1st time")
       console.log(fixtures)
@@ -334,7 +334,7 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
     );
 
     fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-      if (err) res.sendStatus(404);
+      if (err) console.log(err);
       const fixtures = JSON.parse(data);
       console.log("reading 2nd time")
       console.log(fixtures)
