@@ -273,7 +273,7 @@ const deleteYesterdays5Predictions = schedule.scheduleJob(
   })
 );
 
-const deleteYesterdays5Predictions = schedule.scheduleJob(
+const deleteYesterdays6Predictions = schedule.scheduleJob(
   "10 20 23 * * *",
   fs.unlink("fixedPredictions6yesterday.json", function (err) {
     if (err) return console.log(err);
