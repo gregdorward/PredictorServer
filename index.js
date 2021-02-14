@@ -265,8 +265,32 @@ async function getFixtureList(day, string) {
 //   console.log("automatically fetched tomorrow's games");
 // });
 
+const deleteYesterdays5Predictions = schedule.scheduleJob(
+  "00 20 23 * * *",
+  fs.unlink("fixedPredictions5yesterday", function (err) {
+    if (err) return console.log(err);
+    console.log("file 1 deleted successfully");
+  })
+);
+
+const deleteYesterdays5Predictions = schedule.scheduleJob(
+  "10 20 23 * * *",
+  fs.unlink("fixedPredictions6yesterday.json", function (err) {
+    if (err) return console.log(err);
+    console.log("file 2 deleted successfully");
+  })
+);
+
+const deleteYesterdays10Predictions = schedule.scheduleJob(
+  "20 20 23 * * *",
+  fs.unlink("fixedPredictions10yesterday.json", function (err) {
+    if (err) return console.log(err);
+    console.log("file 3 deleted successfully");
+  })
+);
+
 const renameTodays5Predictions = schedule.scheduleJob(
-  "00 39 22 * * *",
+  "30 20 23 * * *",
   async function () {
     fs.rename(
       "fixedPredictions5today.json",
@@ -280,7 +304,7 @@ const renameTodays5Predictions = schedule.scheduleJob(
 );
 
 const renameTodays6Predictions = schedule.scheduleJob(
-  "20 39 22 * * *",
+  "40 20 23 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6today.json",
@@ -294,7 +318,7 @@ const renameTodays6Predictions = schedule.scheduleJob(
 );
 
 const renameTodays10Predictions = schedule.scheduleJob(
-  "30 39 22 * * *",
+  "50 20 23 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10today.json",
@@ -307,40 +331,23 @@ const renameTodays10Predictions = schedule.scheduleJob(
   }
 );
 
+
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 06 23 * * *",
+  "00 21 23 * * *",
   async function () {
-    fs.open("fixedPredictions5tomorrow.json", "r", (err, fd) => {
-      if (err) {
-        if (err.code === "ENOENT") {
-          console.error("myfile does not exist");
-          return;
-        }
-
-        throw err;
+    fs.rename(
+      "fixedPredictions5tomorrow.json",
+      "fixedPredictions5today.json",
+      (err) => {
+        if (err) throw err;
+        console.log("Rename 4 complete!");
       }
-
-      console.log(fd);
-    });
+    );
   }
 );
 
-// const renameTomorrows5Predictions = schedule.scheduleJob(
-//   "40 39 22 * * *",
-//   async function () {
-//     fs.rename(
-//       "fixedPredictions5tomorrow.json",
-//       "fixedPredictions5today.json",
-//       (err) => {
-//         if (err) throw err;
-//         console.log("Rename 4 complete!");
-//       }
-//     );
-//   }
-// );
-
 const renameTomorrows6Predictions = schedule.scheduleJob(
-  "50 39 22 * * *",
+  "10 21 23 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6tomorrow.json",
@@ -354,7 +361,7 @@ const renameTomorrows6Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows10Predictions = schedule.scheduleJob(
-  "00 40 22 * * *",
+  "20 21 23 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10tomorrow.json",
@@ -368,7 +375,7 @@ const renameTomorrows10Predictions = schedule.scheduleJob(
 );
 
 const writeTomorrowsPredictions = schedule.scheduleJob(
-  "10 40 22 * * *",
+  "30 21 23 * * *",
   async function () {
     fs.writeFile(
       "fixedPredictions5tomorrow.json",
