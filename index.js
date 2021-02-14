@@ -48,8 +48,8 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/static", express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
+// app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
@@ -270,7 +270,7 @@ async function getFixtureList(day, string) {
 // });
 
 const renameTodays5Predictions = schedule.scheduleJob(
-  "00 30 22 * * *",
+  "00 39 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions5today.json",
@@ -284,7 +284,7 @@ const renameTodays5Predictions = schedule.scheduleJob(
 );
 
 const renameTodays6Predictions = schedule.scheduleJob(
-  "20 30 22 * * *",
+  "20 39 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6today.json",
@@ -298,7 +298,7 @@ const renameTodays6Predictions = schedule.scheduleJob(
 );
 
 const renameTodays10Predictions = schedule.scheduleJob(
-  "30 30 22 * * *",
+  "30 39 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10today.json",
@@ -312,7 +312,7 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 30 22 * * *",
+  "40 39 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions5tomorrow.json",
@@ -326,7 +326,7 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
-  "50 30 22 * * *",
+  "50 39 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6tomorrow.json",
@@ -340,7 +340,7 @@ const renameTomorrows6Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows10Predictions = schedule.scheduleJob(
-  "00 31 22 * * *",
+  "00 40 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10tomorrow.json",
@@ -354,7 +354,7 @@ const renameTomorrows10Predictions = schedule.scheduleJob(
 );
 
 const writeTomorrowsPredictions = schedule.scheduleJob(
-  "10 31 22 * * *",
+  "10 40 22 * * *",
   async function () {
     fs.writeFile(
       "fixedPredictions5tomorrow.json",
