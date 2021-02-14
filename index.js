@@ -270,7 +270,7 @@ async function getFixtureList(day, string) {
 // });
 
 const renameTodays5Predictions = schedule.scheduleJob(
-  "00 00 00 * * *",
+  "00 30 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions5today.json",
@@ -284,7 +284,7 @@ const renameTodays5Predictions = schedule.scheduleJob(
 );
 
 const renameTodays6Predictions = schedule.scheduleJob(
-  "20 00 00 * * *",
+  "20 30 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6today.json",
@@ -298,7 +298,7 @@ const renameTodays6Predictions = schedule.scheduleJob(
 );
 
 const renameTodays10Predictions = schedule.scheduleJob(
-  "30 00 00 * * *",
+  "30 30 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10today.json",
@@ -312,7 +312,7 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 00 00 * * *",
+  "40 30 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions5tomorrow.json",
@@ -326,7 +326,7 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
-  "50 00 00 * * *",
+  "50 30 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions6tomorrow.json",
@@ -340,7 +340,7 @@ const renameTomorrows6Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows10Predictions = schedule.scheduleJob(
-  "00 01 00 * * *",
+  "00 31 22 * * *",
   async function () {
     fs.rename(
       "fixedPredictions10tomorrow.json",
@@ -354,7 +354,7 @@ const renameTomorrows10Predictions = schedule.scheduleJob(
 );
 
 const writeTomorrowsPredictions = schedule.scheduleJob(
-  "10 01 00 * * *",
+  "10 31 22 * * *",
   async function () {
     fs.writeFile(
       "fixedPredictions5tomorrow.json",
