@@ -48,8 +48,8 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 
-// app.use(express.static(path.join(__dirname, "public")));
-// app.use("/static", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
@@ -312,7 +312,15 @@ const renameTodays10Predictions = schedule.scheduleJob(
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 39 22 * * *",
+  "40 51 22 * * *",
+
+  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    console.log("reading 1st time")
+    console.log(fixtures)
+  }),
+
   async function () {
     fs.rename(
       "fixedPredictions5tomorrow.json",
@@ -322,7 +330,14 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
         console.log("Rename 4 complete!");
       }
     );
-  }
+  },
+
+  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    console.log("reading 2nd time")
+    console.log(fixtures)
+  })
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
