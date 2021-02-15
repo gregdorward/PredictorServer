@@ -7,6 +7,33 @@ const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const { response } = require("express");
+const AWS = require("aws-sdk");
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.ID,
+  secretAccessKey: process.env.SECRET,
+});
+
+const uploadFile = (file, name) => {
+  // Read content from the file
+  const fileContent = fs.readFileSync(file);
+
+  // Setting up S3 upload parameters
+  const params = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: name, // File name you want to save as in S3
+    Body: fileContent,
+  };
+
+  // Uploading files to the bucket
+  s3.upload(params, function (err, data) {
+    if (err) {
+      throw err;
+    }
+    console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+
 // const port = process.env.PORT || 5000;
 
 const apiKey = process.env.API_KEY;
@@ -95,10 +122,15 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
     `fixedPredictions5today.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions5today.json", "fixedPredictions5today.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
@@ -106,10 +138,15 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
     `fixedPredictions5tomorrow.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions5tomorrow.json", "fixedPredictions5tomorrow.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/postPredictions6todaysFixtures", (req, res) => {
@@ -117,10 +154,15 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
     `fixedPredictions6today.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions6today.json", "fixedPredictions6today.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
@@ -128,10 +170,15 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
     `fixedPredictions6tomorrow.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions6tomorrow.json", "fixedPredictions6tomorrow.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/postPredictions10todaysFixtures", (req, res) => {
@@ -139,10 +186,15 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
     `fixedPredictions10today.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions10today.json", "fixedPredictions10today.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
@@ -150,10 +202,15 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
     `fixedPredictions10tomorrow.json`,
     JSON.stringify(req.body),
     function (err) {
-      if (err) return console.log(err);
+      if (err) {
+        res.sendStatus(500)
+        return console.log(err);
+      } else {
+        uploadFile("fixedPredictions10tomorrow.json", "fixedPredictions10tomorrow.json");
+        res.sendStatus(200);
+      }
     }
   );
-  res.sendStatus(200);
 });
 
 app.post("/allForm", (req, res) => {
@@ -390,7 +447,7 @@ async function getFixtureList(day, string) {
 }
 
 const renameTodays5Predictions = schedule.scheduleJob(
-  "00 03 15 * * *",
+  "00 00 00 * * *",
   async function () {
     fs.access(
       "fixedPredictions5today.json",
@@ -417,76 +474,145 @@ const renameTodays5Predictions = schedule.scheduleJob(
   }
 );
 
-const renameTodays6Predictions = schedule.scheduleJob(
-  "40 23 23 * * *",
+const renameToday65Predictions = schedule.scheduleJob(
+  "20 00 00 * * *",
   async function () {
-    fs.rename(
+    fs.access(
       "fixedPredictions6today.json",
-      "fixedPredictions6yesterday.json",
+      fs.constants.F_OK | fs.constants.W_OK,
       (err) => {
-        if (err) throw err;
-        console.log("Rename 2 complete!");
+        if (err) {
+          console.error(
+            `${"fixedPredictions6today.json"} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+        } else {
+          fs.rename(
+            "fixedPredictions6today.json",
+            "fixedPredictions6yesterday.json",
+            (err) => {
+              if (err) throw err;
+              console.log("Rename 2 complete!");
+            }
+          );
+        }
       }
     );
   }
 );
 
 const renameTodays10Predictions = schedule.scheduleJob(
-  "50 23 23 * * *",
+  "30 00 00 * * *",
   async function () {
-    fs.rename(
+    fs.access(
       "fixedPredictions10today.json",
-      "fixedPredictions10yesterday.json",
+      fs.constants.F_OK | fs.constants.W_OK,
       (err) => {
-        if (err) throw err;
-        console.log("Rename 3 complete!");
+        if (err) {
+          console.error(
+            `${"fixedPredictions10today.json"} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+        } else {
+          fs.rename(
+            "fixedPredictions10today.json",
+            "fixedPredictions10yesterday.json",
+            (err) => {
+              if (err) throw err;
+              console.log("Rename 3 complete!");
+            }
+          );
+        }
       }
     );
   }
 );
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
-  "00 24 23 * * *",
+  "40 00 00 * * *",
   async function () {
-    fs.rename(
+    fs.access(
       "fixedPredictions5tomorrow.json",
-      "fixedPredictions5today.json",
+      fs.constants.F_OK | fs.constants.W_OK,
       (err) => {
-        if (err) throw err;
-        console.log("Rename 4 complete!");
+        if (err) {
+          console.error(
+            `${"fixedPredictions5tomorrow.json"} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+        } else {
+          fs.rename(
+            "fixedPredictions5tomorrow.json",
+            "fixedPredictions5today.json",
+            (err) => {
+              if (err) throw err;
+              console.log("Rename 4 complete!");
+            }
+          );
+        }
       }
     );
   }
 );
 
 const renameTomorrows6Predictions = schedule.scheduleJob(
-  "10 24 23 * * *",
+  "50 00 00 * * *",
   async function () {
-    fs.rename(
+    fs.access(
       "fixedPredictions6tomorrow.json",
-      "fixedPredictions6today.json",
+      fs.constants.F_OK | fs.constants.W_OK,
       (err) => {
-        if (err) throw err;
-        console.log("Rename 5 complete!");
+        if (err) {
+          console.error(
+            `${"fixedPredictions6tomorrow.json"} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+        } else {
+          fs.rename(
+            "fixedPredictions6tomorrow.json",
+            "fixedPredictions6today.json",
+            (err) => {
+              if (err) throw err;
+              console.log("Rename 5 complete!");
+            }
+          );
+        }
       }
     );
   }
 );
 
 const renameTomorrows10Predictions = schedule.scheduleJob(
-  "20 24 23 * * *",
+  "40 00 00 * * *",
   async function () {
-    fs.rename(
+    fs.access(
       "fixedPredictions10tomorrow.json",
-      "fixedPredictions10today.json",
+      fs.constants.F_OK | fs.constants.W_OK,
       (err) => {
-        if (err) throw err;
-        console.log("Rename 6 complete!");
+        if (err) {
+          console.error(
+            `${"fixedPredictions5tomorrow.json"} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+        } else {
+          fs.rename(
+            "fixedPredictions5tomorrow.json",
+            "fixedPredictions5today.json",
+            (err) => {
+              if (err) throw err;
+              console.log("Rename 1 complete!");
+            }
+          );
+        }
       }
     );
   }
 );
-
 const writeTomorrowsPredictions = schedule.scheduleJob(
   "30 24 23 * * *",
   async function () {
