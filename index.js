@@ -164,74 +164,146 @@ app.post("/allForm", (req, res) => {
 });
 
 app.get("/yesterdaysFixturesPredictions5", (req, res) => {
-  fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions5yesterday.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions5yesterday.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/yesterdaysFixturesPredictions6", (req, res) => {
-  fs.readFile("fixedPredictions6yesterday.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions6yesterday.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions6yesterday.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions6yesterday.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/yesterdaysFixturesPredictions10", (req, res) => {
-  fs.readFile("fixedPredictions10yesterday.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions10yesterday.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions10yesterday.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions10yesterday.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/todaysFixturesPredictions5", (req, res) => {
-  fs.readFile("fixedPredictions5today.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions5today.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions5today.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions5today.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/todaysFixturesPredictions6", (req, res) => {
-  fs.readFile("fixedPredictions6today.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions6today.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions6today.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions6today.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/todaysFixturesPredictions10", (req, res) => {
-  fs.readFile("fixedPredictions10today.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions10today.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions10today.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions10today.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/tomorrowsFixturesPredictions5", (req, res) => {
-  fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions5tomorrow.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions5tomorrow.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions5tomorrow.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/tomorrowsFixturesPredictions6", (req, res) => {
-  fs.readFile("fixedPredictions6tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions6tomorrow.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions6tomorrow.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions6tomorrow.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 
 app.get("/tomorrowsFixturesPredictions10", (req, res) => {
-  fs.readFile("fixedPredictions10tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
+  fs.access("fixedPredictions10tomorrow.json", fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      console.error(
+        `${"fixedPredictions10tomorrow.json"} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+        res.sendStatus(404)
+    } else {
+      fs.readFile("fixedPredictions10tomorrow.json", function (err, data) {
+        if (err) res.sendStatus(500);
+        const fixtures = JSON.parse(data);
+        res.send({ fixtures });
+      });
+    }
   });
 });
 

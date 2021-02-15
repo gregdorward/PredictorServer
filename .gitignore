@@ -1,15 +1,15 @@
 node_modules
 npm-debug.log
 .env
-# fixedPredictions5today.json
-# fixedPredictions5tomorrow.json
-# fixedPredictions5yesterday.json
-# fixedPredictions6today.json
-# fixedPredictions6tomorrow.json
-# fixedPredictions6yesterday.json
-# fixedPredictions10today.json
-# fixedPredictions10tomorrow.json
-# fixedPredictions10yesterday.json
+fixedPredictions5today.json
+fixedPredictions5tomorrow.json
+fixedPredictions5yesterday.json
+fixedPredictions6today.json
+fixedPredictions6tomorrow.json
+fixedPredictions6yesterday.json
+fixedPredictions10today.json
+fixedPredictions10tomorrow.json
+fixedPredictions10yesterday.json
 today.json
 tomorrow.json
 yesterday.json
