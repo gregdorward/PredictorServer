@@ -390,7 +390,7 @@ async function getFixtureList(day, string) {
 }
 
 const renameTodays5Predictions = schedule.scheduleJob(
-  "00 55 14 * * *",
+  "00 03 15 * * *",
   async function () {
     fs.access(
       "fixedPredictions5today.json",
@@ -398,11 +398,10 @@ const renameTodays5Predictions = schedule.scheduleJob(
       (err) => {
         if (err) {
           console.error(
-            `${"ffixedPredictions5today.json"} ${
+            `${"fixedPredictions5today.json"} ${
               err.code === "ENOENT" ? "does not exist" : "is read-only"
             }`
           );
-          res.sendStatus(404);
         } else {
           fs.rename(
             "fixedPredictions5today.json",
