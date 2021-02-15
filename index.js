@@ -271,7 +271,7 @@ async function getFixtureList(day, string) {
 
 
 const deleteYesterdays5Predictions = schedule.scheduleJob(
-  "00 20 10 * * *",
+  "00 37 10 * * *",
   async function () {
 
   fs.unlink("fixedPredictions5yesterday.json", function (err) {
