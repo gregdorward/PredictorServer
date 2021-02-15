@@ -265,44 +265,36 @@ async function getFixtureList(day, string) {
 //   console.log("automatically fetched tomorrow's games");
 // });
 
-
-fs.unlink(path.join(__dirname, 'test1.txt', (err) => {
-  if (err) throw err;
-  console.log('test1.txt was deleted');
-});
-
-
-
 const deleteYesterdays5Predictions = schedule.scheduleJob(
-  "00 11 10 * * *",
+  "00 12 10 * * *",
   async function () {
-  fs.unlink(path.join(__dirname, 'fixedPredictions5yesterday.json', (err) => {
-    if (err) return console.log(err);
-    console.log("file 1 deleted successfully");
-  }))
-}
+    fs.unlink(
+      path.join(__dirname, "fixedPredictions5yesterday.json", (err) => {
+        if (err) return console.log(err);
+        console.log("file 1 deleted successfully");
+      })
+    );
+  }
 );
 
 const deleteYesterdays6Predictions = schedule.scheduleJob(
   "10 23 23 * * *",
   async function () {
-
-  fs.unlink("fixedPredictions6yesterday.json", function (err) {
-    if (err) return console.log(err);
-    console.log("file 2 deleted successfully");
-  })
-}
+    fs.unlink("fixedPredictions6yesterday.json", function (err) {
+      if (err) return console.log(err);
+      console.log("file 2 deleted successfully");
+    });
+  }
 );
 
 const deleteYesterdays10Predictions = schedule.scheduleJob(
   "20 23 23 * * *",
   async function () {
-
-  fs.unlink("fixedPredictions10yesterday.json", function (err) {
-    if (err) return console.log(err);
-    console.log("file 3 deleted successfully");
-  })
-}
+    fs.unlink("fixedPredictions10yesterday.json", function (err) {
+      if (err) return console.log(err);
+      console.log("file 3 deleted successfully");
+    });
+  }
 );
 
 const renameTodays5Predictions = schedule.scheduleJob(
@@ -346,7 +338,6 @@ const renameTodays10Predictions = schedule.scheduleJob(
     );
   }
 );
-
 
 const renameTomorrows5Predictions = schedule.scheduleJob(
   "00 24 23 * * *",
