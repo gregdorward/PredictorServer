@@ -265,14 +265,21 @@ async function getFixtureList(day, string) {
 //   console.log("automatically fetched tomorrow's games");
 // });
 
-const deleteYesterdays5Predictions = schedule.scheduleJob(
-  "00 23 23 * * *",
-  async function () {
 
-  fs.unlink("fixedPredictions5yesterday", function (err) {
+fs.unlink(path.join(__dirname, 'test1.txt', (err) => {
+  if (err) throw err;
+  console.log('test1.txt was deleted');
+});
+
+
+
+const deleteYesterdays5Predictions = schedule.scheduleJob(
+  "00 11 10 * * *",
+  async function () {
+  fs.unlink(path.join(__dirname, 'fixedPredictions5yesterday.json', (err) => {
     if (err) return console.log(err);
     console.log("file 1 deleted successfully");
-  })
+  }))
 }
 );
 
