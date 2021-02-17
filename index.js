@@ -398,27 +398,36 @@ app.get("/formtomorrowFixtures", cors(corsOptions), async (req, res) => {
 });
 
 app.get("/yesterdaysFixturesPredictions5", cors(corsOptions), (req, res) => {
-  fs.access(
-    "fixedPredictions5yesterday.json",
-    fs.constants.F_OK | fs.constants.W_OK,
-    (err) => {
-      if (err) {
-        console.error(
-          `${"fixedPredictions5yesterday.json"} ${
-            err.code === "ENOENT" ? "does not exist" : "is read-only"
-          }`
-        );
-        res.sendStatus(404);
-      } else {
-        fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
-          if (err) res.sendStatus(500);
-          const fixtures = JSON.parse(data);
-          res.send({ fixtures });
-        });
-      }
-    }
-  );
-});
+  fs.readFile("tomorrow.json", function (err, data) {
+    if (err) res.sendStatus(404);
+    const fixtures = JSON.parse(data);
+    res.send({ fixtures });
+  });
+})
+
+
+
+//   fs.access(
+//     "fixedPredictions5yesterday.json",
+//     fs.constants.F_OK | fs.constants.W_OK,
+//     (err) => {
+//       if (err) {
+//         console.error(
+//           `${"fixedPredictions5yesterday.json"} ${
+//             err.code === "ENOENT" ? "does not exist" : "is read-only"
+//           }`
+//         );
+//         res.sendStatus(404);
+//       } else {
+//         fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
+//           if (err) res.sendStatus(500);
+//           const fixtures = JSON.parse(data);
+//           res.send({ fixtures });
+//         });
+//       }
+//     }
+//   );
+// });
 
 app.get("/yesterdaysFixturesPredictions6", cors(corsOptions), (req, res) => {
   fs.access(
