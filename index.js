@@ -9,17 +9,20 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 const AWS = require("aws-sdk");
 
-var whitelist = ['https://gregdorward@github.io/predictor', 'http://localhost:3000']
+var whitelist = [
+  "https://gregdorward@github.io/predictor",
+  "http://localhost:3000",
+];
 
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true)
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(new Error("Not allowed by CORS"));
     }
-  }
-}
+  },
+};
 
 app.use(
   cors({
@@ -76,12 +79,6 @@ let [
 const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
-
-
-
-
-
-
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
@@ -143,24 +140,28 @@ app.post("/postPredictions5todaysFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.post("/postPredictions5tomorrowsFixtures", cors(corsOptions), (req, res) => {
-  fs.writeFile(
-    `fixedPredictions5tomorrow.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile(
-          "fixedPredictions5tomorrow.json",
-          "fixedPredictions5tomorrow.json"
-        );
-        res.sendStatus(200);
+app.post(
+  "/postPredictions5tomorrowsFixtures",
+  cors(corsOptions),
+  (req, res) => {
+    fs.writeFile(
+      `fixedPredictions5tomorrow.json`,
+      JSON.stringify(req.body),
+      function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return console.log(err);
+        } else {
+          uploadFile(
+            "fixedPredictions5tomorrow.json",
+            "fixedPredictions5tomorrow.json"
+          );
+          res.sendStatus(200);
+        }
       }
-    }
-  );
-});
+    );
+  }
+);
 
 app.post("/postPredictions6todaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
@@ -181,24 +182,28 @@ app.post("/postPredictions6todaysFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.post("/postPredictions6tomorrowsFixtures", cors(corsOptions), (req, res) => {
-  fs.writeFile(
-    `fixedPredictions6tomorrow.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile(
-          "fixedPredictions6tomorrow.json",
-          "fixedPredictions6tomorrow.json"
-        );
-        res.sendStatus(200);
+app.post(
+  "/postPredictions6tomorrowsFixtures",
+  cors(corsOptions),
+  (req, res) => {
+    fs.writeFile(
+      `fixedPredictions6tomorrow.json`,
+      JSON.stringify(req.body),
+      function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return console.log(err);
+        } else {
+          uploadFile(
+            "fixedPredictions6tomorrow.json",
+            "fixedPredictions6tomorrow.json"
+          );
+          res.sendStatus(200);
+        }
       }
-    }
-  );
-});
+    );
+  }
+);
 
 app.post("/postPredictions10todaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
@@ -219,24 +224,28 @@ app.post("/postPredictions10todaysFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.post("/postPredictions10tomorrowsFixtures", cors(corsOptions), (req, res) => {
-  fs.writeFile(
-    `fixedPredictions10tomorrow.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile(
-          "fixedPredictions10tomorrow.json",
-          "fixedPredictions10tomorrow.json"
-        );
-        res.sendStatus(200);
+app.post(
+  "/postPredictions10tomorrowsFixtures",
+  cors(corsOptions),
+  (req, res) => {
+    fs.writeFile(
+      `fixedPredictions10tomorrow.json`,
+      JSON.stringify(req.body),
+      function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return console.log(err);
+        } else {
+          uploadFile(
+            "fixedPredictions10tomorrow.json",
+            "fixedPredictions10tomorrow.json"
+          );
+          res.sendStatus(200);
+        }
       }
-    }
-  );
-});
+    );
+  }
+);
 
 app.post("/allFormyesterdaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
@@ -292,23 +301,22 @@ app.post("/allFormtomorrowsFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-
 app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
   const filePath = "allFormyesterdaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-  console.log("Function called")
+  console.log("Function called");
   s3.getObject(params, (err, data) => {
-    console.log("Getting S3 object")
+    console.log("Getting S3 object");
 
     if (err) console.error(err);
     fs.writeFileSync(filePath, data.Body.toString());
     console.log(`${filePath} has been created!`);
 
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      console.log("fs.access")
+      console.log("fs.access");
 
       if (err) {
         console.error(
@@ -424,11 +432,15 @@ app.get("/yesterdaysFixturesPredictions6", cors(corsOptions), (req, res) => {
         );
         res.sendStatus(404);
       } else {
-        fs.readFile("fixedPredictions6yesterday.json", cors(corsOptions), function (err, data) {
-          if (err) res.sendStatus(500);
-          const fixtures = JSON.parse(data);
-          res.send({ fixtures });
-        });
+        fs.readFile(
+          "fixedPredictions6yesterday.json",
+          cors(corsOptions),
+          function (err, data) {
+            if (err) res.sendStatus(500);
+            const fixtures = JSON.parse(data);
+            res.send({ fixtures });
+          }
+        );
       }
     }
   );
@@ -447,11 +459,15 @@ app.get("/yesterdaysFixturesPredictions10", cors(corsOptions), (req, res) => {
         );
         res.sendStatus(404);
       } else {
-        fs.readFile("fixedPredictions10yesterday.json", cors(corsOptions), function (err, data) {
-          if (err) res.sendStatus(500);
-          const fixtures = JSON.parse(data);
-          res.send({ fixtures });
-        });
+        fs.readFile(
+          "fixedPredictions10yesterday.json",
+          cors(corsOptions),
+          function (err, data) {
+            if (err) res.sendStatus(500);
+            const fixtures = JSON.parse(data);
+            res.send({ fixtures });
+          }
+        );
       }
     }
   );
@@ -595,33 +611,32 @@ app.get("/tomorrowsFixturesPredictions10", cors(corsOptions), (req, res) => {
   );
 });
 
-async function getFixtureList(day, string) {
-  await fetch(`https://safe-caverns-99679.herokuapp.com/${day}`
-    .then((res) => res.json())
-    .then((res) =>
-      fs.writeFile(`${string}.json`, JSON.stringify(res.data), function (err) {
-        console.log(`file ${string} written`);
+// async function getFixtureList(day, string) {
+//   await fetch(`https://safe-caverns-99679.herokuapp.com/${day}`
+//     .then((res) => res.json())
+//     .then((res) =>
+//       fs.writeFile(`${string}.json`, JSON.stringify(res.data), function (err) {
+//         console.log(`file ${string} written`);
 
-        if (err) return console.log(err);
-      })
-    )
-    .catch((err) => console.log(err));
-}
+//         if (err) return console.log(err);
+//       })
+//     )
+//     .catch((err) => console.log(err));
+// }
 
 const deleteYesterdaysForm = schedule.scheduleJob(
   "45 59 23 * * *",
   async function () {
     var OLD_KEY = "allFormyesterdaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      
+    // Delete the old object
+    s3.deleteObject({
+      Bucket: BUCKET_NAME,
+      Key: OLD_KEY,
+    })
+      .promise()
+
       // Error handling is left up to reader
       .catch((e) => console.error(e));
   }
@@ -632,7 +647,7 @@ const renameTodaysForm = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "allFormtodaysFixtures.json";
     var NEW_KEY = "allFormyesterdaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -660,7 +675,7 @@ const renameTomorrowsForm = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "allFormtomorrowsFixtures.json";
     var NEW_KEY = "allFormtodaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -687,14 +702,13 @@ const deleteYesterdays5Predictions = schedule.scheduleJob(
   "20 00 00 * * *",
   async function () {
     var OLD_KEY = "fixedPredictions5yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
+    var BUCKET_NAME = "predictorfiles";
+    // Delete the old object
+    s3.deleteObject({
+      Bucket: BUCKET_NAME,
+      Key: OLD_KEY,
+    })
+      .promise()
       // Error handling is left up to reader
       .catch((e) => console.error(e));
   }
@@ -704,14 +718,13 @@ const deleteYesterdays6Predictions = schedule.scheduleJob(
   "30 00 00 * * *",
   async function () {
     var OLD_KEY = "fixedPredictions6yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
+    var BUCKET_NAME = "predictorfiles";
+    // Delete the old object
+    s3.deleteObject({
+      Bucket: BUCKET_NAME,
+      Key: OLD_KEY,
+    })
+      .promise()
       // Error handling is left up to reader
       .catch((e) => console.error(e));
   }
@@ -721,14 +734,13 @@ const deleteYesterdays10Predictions = schedule.scheduleJob(
   "40 00 00 * * *",
   async function () {
     var OLD_KEY = "fixedPredictions10yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
+    var BUCKET_NAME = "predictorfiles";
+    // Delete the old object
+    s3.deleteObject({
+      Bucket: BUCKET_NAME,
+      Key: OLD_KEY,
+    })
+      .promise()
       // Error handling is left up to reader
       .catch((e) => console.error(e));
   }
@@ -739,7 +751,7 @@ const renameTodays5Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions5today.json";
     var NEW_KEY = "fixedPredictions5yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -767,7 +779,7 @@ const renameTodays6Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions6today.json";
     var NEW_KEY = "fixedPredictions6yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -795,7 +807,7 @@ const renameTodays10Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions10today.json";
     var NEW_KEY = "fixedPredictions10yesterday.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -823,7 +835,7 @@ const renameTomorrows5Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions5tomorrow.json";
     var NEW_KEY = "fixedPredictions5today.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -851,7 +863,7 @@ const renameTomorrows6Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions6tomorrow.json";
     var NEW_KEY = "fixedPredictions6today.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
@@ -879,7 +891,7 @@ const renameTomorrows10Predictions = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "fixedPredictions10tomorrow.json";
     var NEW_KEY = "fixedPredictions10today.json";
-    var BUCKET_NAME = "predictorfiles"
+    var BUCKET_NAME = "predictorfiles";
 
     // Copy the object to a new location
     s3.copyObject({
