@@ -806,7 +806,7 @@ const writeTomorrowsPredictions = schedule.scheduleJob(
 );
 
 const renameYesterdaysForm = schedule.scheduleJob(
-  "00 12 16 * * *",
+  "00 35 16 * * *",
   async function () {
     var OLD_KEY = "allFormyesterdaysFixtures.json";
     var NEW_KEY = "testingARename.json";
