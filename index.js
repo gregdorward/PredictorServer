@@ -59,19 +59,23 @@ const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
-if (process.env.NODE_ENV === "production") {
-  app.use(
-    cors({
-      origin: "https://gregdorward.github.io",
-    })
-  );
-} else {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-    })
-  );
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(
+//     cors({
+//       origin: "https://gregdorward.github.io",
+//     })
+//   );
+// } else {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:3000",
+//     })
+//   );
+// }
+
+app.use(cors())
+
+
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
