@@ -9,31 +9,30 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 const AWS = require("aws-sdk");
 
+// if (process.env.NODE_ENV === "production") {
+//   app.use(
+//     cors({
+//       origin: "https://gregdorward.github.io",
+//     })
+//   );
+// } else {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:3000",
+//     })
+//   );
+// }
+
+app.use(
+  cors({
+    origin: "https://gregdorward.github.io",
+  })
+);
+
 const s3 = new AWS.S3({
   accessKeyId: process.env.ID,
   secretAccessKey: process.env.SECRET,
 });
-
-var whitelist = ['https://gregdorward.github.io', 'http://localhost:3000']
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-
-app.use(cors(corsOptions));
-
-
-
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/static", express.static(path.join(__dirname, "public")));
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb" }));
-
 
 const uploadFile = (file, name) => {
   // Read content from the file
@@ -80,21 +79,16 @@ const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
-// if (process.env.NODE_ENV === "production") {
-//   app.use(
-//     cors({
-//       origin: "https://gregdorward.github.io",
-//     })
-//   );
-// } else {
-//   app.use(
-//     cors({
-//       origin: "http://localhost:3000",
-//     })
-//   );
-// }
 
 
+
+
+
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb" }));
 
 app.listen(process.env.PORT || 5000, function () {
   console.log(
