@@ -611,210 +611,36 @@ async function getFixtureList(day, string) {
     .catch((err) => console.log(err));
 }
 
-const renameTodays5Predictions = schedule.scheduleJob(
-  "00 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions5today.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions5today.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions5today.json",
-            "fixedPredictions5yesterday.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 1 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-
-const renameToday65Predictions = schedule.scheduleJob(
-  "20 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions6today.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions6today.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions6today.json",
-            "fixedPredictions6yesterday.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 2 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-
-const renameTodays10Predictions = schedule.scheduleJob(
-  "30 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions10today.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions10today.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions10today.json",
-            "fixedPredictions10yesterday.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 3 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-
-const renameTomorrows5Predictions = schedule.scheduleJob(
-  "40 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions5tomorrow.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions5tomorrow.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions5tomorrow.json",
-            "fixedPredictions5today.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 4 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-
-const renameTomorrows6Predictions = schedule.scheduleJob(
-  "50 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions6tomorrow.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions6tomorrow.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions6tomorrow.json",
-            "fixedPredictions6today.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 5 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-
-const renameTomorrows10Predictions = schedule.scheduleJob(
-  "40 00 00 * * *",
-  async function () {
-    fs.access(
-      "fixedPredictions10tomorrow.json",
-      fs.constants.F_OK | fs.constants.W_OK,
-      (err) => {
-        if (err) {
-          console.error(
-            `${"fixedPredictions5tomorrow.json"} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-        } else {
-          fs.rename(
-            "fixedPredictions5tomorrow.json",
-            "fixedPredictions5today.json",
-            (err) => {
-              if (err) throw err;
-              console.log("Rename 1 complete!");
-            }
-          );
-        }
-      }
-    );
-  }
-);
-const writeTomorrowsPredictions = schedule.scheduleJob(
-  "30 24 23 * * *",
-  async function () {
-    fs.writeFile(
-      "fixedPredictions5tomorrow.json",
-      '{"predictions":[]}',
-      function (err) {
-        console.log(`file fixedPredictions5tomorrow.json written`);
-      }
-    );
-    fs.writeFile(
-      "fixedPredictions6tomorrow.json",
-      '{"predictions":[]}',
-      function (err) {
-        console.log(`file fixedPredictions6tomorrow.json written`);
-      }
-    );
-    fs.writeFile(
-      "fixedPredictions10tomorrow.json",
-      '{"predictions":[]}',
-      function (err) {
-        console.log(`file fixedPredictions10tomorrow.json written`);
-      }
-    );
-  }
-);
-
-const renameYesterdaysForm = schedule.scheduleJob(
-  "00 37 16 * * *",
+const deleteYesterdaysForm = schedule.scheduleJob(
+  "45 59 23 * * *",
   async function () {
     var OLD_KEY = "allFormyesterdaysFixtures.json";
     var NEW_KEY = "testingARename.json";
     var BUCKET_NAME = "predictorfiles"
 
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTodaysForm = schedule.scheduleJob(
+  "00 00 00 * * *",
+  async function () {
+    var OLD_KEY = "allFormtodaysFixtures.json";
+    var NEW_KEY = "allFormyesterdaysFixtures.json";
+    var BUCKET_NAME = "predictorfiles"
+
     // Copy the object to a new location
     s3.copyObject({
-      Bucket: "predictorfiles",
+      Bucket: BUCKET_NAME,
       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
       Key: NEW_KEY,
     })
@@ -823,7 +649,254 @@ const renameYesterdaysForm = schedule.scheduleJob(
         // Delete the old object
         s3
           .deleteObject({
-            Bucket: "predictorfiles",
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTomorrowsForm = schedule.scheduleJob(
+  "10 00 00 * * *",
+  async function () {
+    var OLD_KEY = "allFormtomorrowsFixtures.json";
+    var NEW_KEY = "allFormtodaysFixtures.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const deleteYesterdays5Predictions = schedule.scheduleJob(
+  "20 00 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions5yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const deleteYesterdays6Predictions = schedule.scheduleJob(
+  "30 00 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions6yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const deleteYesterdays10Predictions = schedule.scheduleJob(
+  "40 00 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions10yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTodays5Predictions = schedule.scheduleJob(
+  "50 00 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions5today.json";
+    var NEW_KEY = "fixedPredictions5yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTodays6Predictions = schedule.scheduleJob(
+  "00 01 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions6today.json";
+    var NEW_KEY = "fixedPredictions6yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTodays10Predictions = schedule.scheduleJob(
+  "10 01 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions10today.json";
+    var NEW_KEY = "fixedPredictions10yesterday.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTomorrows5Predictions = schedule.scheduleJob(
+  "20 01 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions5tomorrow.json";
+    var NEW_KEY = "fixedPredictions5today.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTomorrows6Predictions = schedule.scheduleJob(
+  "30 01 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions6tomorrow.json";
+    var NEW_KEY = "fixedPredictions6today.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
+  }
+);
+
+const renameTomorrows10Predictions = schedule.scheduleJob(
+  "40 01 00 * * *",
+  async function () {
+    var OLD_KEY = "fixedPredictions10tomorrow.json";
+    var NEW_KEY = "fixedPredictions10today.json";
+    var BUCKET_NAME = "predictorfiles"
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
             Key: OLD_KEY,
           })
           .promise()
