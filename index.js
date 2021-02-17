@@ -9,19 +9,17 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 const AWS = require("aws-sdk");
 
-// if (process.env.NODE_ENV === "production") {
-//   app.use(
-//     cors({
-//       origin: "https://gregdorward.github.io",
-//     })
-//   );
-// } else {
-//   app.use(
-//     cors({
-//       origin: "http://localhost:3000",
-//     })
-//   );
-// }
+var whitelist = ['https://gregdorward@github.io/predictor', 'http://localhost:3000']
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
 
 app.use(
   cors({
@@ -102,7 +100,7 @@ app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>");
 });
 
-app.get("/todaysFixtures", (req, res) => {
+app.get("/todaysFixtures", cors(corsOptions), (req, res) => {
   fs.readFile("today.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -110,7 +108,7 @@ app.get("/todaysFixtures", (req, res) => {
   });
 });
 
-app.get("/tomorrowsFixtures", (req, res) => {
+app.get("/tomorrowsFixtures", cors(corsOptions), (req, res) => {
   fs.readFile("tomorrow.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -118,7 +116,7 @@ app.get("/tomorrowsFixtures", (req, res) => {
   });
 });
 
-app.get("/yesterdaysFixtures", (req, res) => {
+app.get("/yesterdaysFixtures", cors(corsOptions), (req, res) => {
   fs.readFile("yesterday.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -126,7 +124,7 @@ app.get("/yesterdaysFixtures", (req, res) => {
   });
 });
 
-app.post("/postPredictions5todaysFixtures", (req, res) => {
+app.post("/postPredictions5todaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions5today.json`,
     JSON.stringify(req.body),
@@ -145,7 +143,7 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
   );
 });
 
-app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
+app.post("/postPredictions5tomorrowsFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions5tomorrow.json`,
     JSON.stringify(req.body),
@@ -164,7 +162,7 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
   );
 });
 
-app.post("/postPredictions6todaysFixtures", (req, res) => {
+app.post("/postPredictions6todaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions6today.json`,
     JSON.stringify(req.body),
@@ -183,7 +181,7 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
   );
 });
 
-app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
+app.post("/postPredictions6tomorrowsFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions6tomorrow.json`,
     JSON.stringify(req.body),
@@ -202,7 +200,7 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
   );
 });
 
-app.post("/postPredictions10todaysFixtures", (req, res) => {
+app.post("/postPredictions10todaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions10today.json`,
     JSON.stringify(req.body),
@@ -221,7 +219,7 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
   );
 });
 
-app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
+app.post("/postPredictions10tomorrowsFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `fixedPredictions10tomorrow.json`,
     JSON.stringify(req.body),
@@ -240,7 +238,7 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
   );
 });
 
-app.post("/allFormyesterdaysFixtures", (req, res) => {
+app.post("/allFormyesterdaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `allFormyesterdaysFixtures.json`,
     JSON.stringify(req.body),
@@ -259,7 +257,7 @@ app.post("/allFormyesterdaysFixtures", (req, res) => {
   );
 });
 
-app.post("/allFormtodaysFixtures", (req, res) => {
+app.post("/allFormtodaysFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `allFormtodaysFixtures.json`,
     JSON.stringify(req.body),
@@ -275,7 +273,7 @@ app.post("/allFormtodaysFixtures", (req, res) => {
   );
 });
 
-app.post("/allFormtomorrowsFixtures", (req, res) => {
+app.post("/allFormtomorrowsFixtures", cors(corsOptions), (req, res) => {
   fs.writeFile(
     `allFormtomorrowsFixtures.json`,
     JSON.stringify(req.body),
@@ -295,18 +293,23 @@ app.post("/allFormtomorrowsFixtures", (req, res) => {
 });
 
 
-app.get("/formyesterdaysFixtures", async (req, res) => {
+app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
   const filePath = "allFormyesterdaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
     Key: filePath,
   };
+  console.log("Function called")
   s3.getObject(params, (err, data) => {
+    console.log("Getting S3 object")
+
     if (err) console.error(err);
     fs.writeFileSync(filePath, data.Body.toString());
     console.log(`${filePath} has been created!`);
 
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      console.log("fs.access")
+
       if (err) {
         console.error(
           `${filePath} ${
@@ -325,7 +328,7 @@ app.get("/formyesterdaysFixtures", async (req, res) => {
   });
 });
 
-app.get("/formtodaysFixtures", async (req, res) => {
+app.get("/formtodaysFixtures", cors(corsOptions), async (req, res) => {
   const filePath = "allFormtodaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -355,7 +358,7 @@ app.get("/formtodaysFixtures", async (req, res) => {
   });
 });
 
-app.get("/formtomorrowFixtures", async (req, res) => {
+app.get("/formtomorrowFixtures", cors(corsOptions), async (req, res) => {
   const filePath = "allFormytomorrowsFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -385,7 +388,7 @@ app.get("/formtomorrowFixtures", async (req, res) => {
   });
 });
 
-app.get("/yesterdaysFixturesPredictions5", (req, res) => {
+app.get("/yesterdaysFixturesPredictions5", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions5yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -408,7 +411,7 @@ app.get("/yesterdaysFixturesPredictions5", (req, res) => {
   );
 });
 
-app.get("/yesterdaysFixturesPredictions6", (req, res) => {
+app.get("/yesterdaysFixturesPredictions6", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions6yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -421,7 +424,7 @@ app.get("/yesterdaysFixturesPredictions6", (req, res) => {
         );
         res.sendStatus(404);
       } else {
-        fs.readFile("fixedPredictions6yesterday.json", function (err, data) {
+        fs.readFile("fixedPredictions6yesterday.json", cors(corsOptions), function (err, data) {
           if (err) res.sendStatus(500);
           const fixtures = JSON.parse(data);
           res.send({ fixtures });
@@ -431,7 +434,7 @@ app.get("/yesterdaysFixturesPredictions6", (req, res) => {
   );
 });
 
-app.get("/yesterdaysFixturesPredictions10", (req, res) => {
+app.get("/yesterdaysFixturesPredictions10", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions10yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -444,7 +447,7 @@ app.get("/yesterdaysFixturesPredictions10", (req, res) => {
         );
         res.sendStatus(404);
       } else {
-        fs.readFile("fixedPredictions10yesterday.json", function (err, data) {
+        fs.readFile("fixedPredictions10yesterday.json", cors(corsOptions), function (err, data) {
           if (err) res.sendStatus(500);
           const fixtures = JSON.parse(data);
           res.send({ fixtures });
@@ -454,7 +457,7 @@ app.get("/yesterdaysFixturesPredictions10", (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions5", (req, res) => {
+app.get("/todaysFixturesPredictions5", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions5today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -477,7 +480,7 @@ app.get("/todaysFixturesPredictions5", (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions6", (req, res) => {
+app.get("/todaysFixturesPredictions6", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions6today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -500,7 +503,7 @@ app.get("/todaysFixturesPredictions6", (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions10", (req, res) => {
+app.get("/todaysFixturesPredictions10", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions10today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -523,7 +526,7 @@ app.get("/todaysFixturesPredictions10", (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions5", (req, res) => {
+app.get("/tomorrowsFixturesPredictions5", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions5tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -546,7 +549,7 @@ app.get("/tomorrowsFixturesPredictions5", (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions6", (req, res) => {
+app.get("/tomorrowsFixturesPredictions6", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions6tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -569,7 +572,7 @@ app.get("/tomorrowsFixturesPredictions6", (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions10", (req, res) => {
+app.get("/tomorrowsFixturesPredictions10", cors(corsOptions), (req, res) => {
   fs.access(
     "fixedPredictions10tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -593,13 +596,7 @@ app.get("/tomorrowsFixturesPredictions10", (req, res) => {
 });
 
 async function getFixtureList(day, string) {
-  await fetch(`https://safe-caverns-99679.herokuapp.com/${day}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Origin: "https://gregdorward.github.io",
-      Host: "safe-caverns-99679.herokuapp.com",
-    },
-  })
+  await fetch(`https://safe-caverns-99679.herokuapp.com/${day}`
     .then((res) => res.json())
     .then((res) =>
       fs.writeFile(`${string}.json`, JSON.stringify(res.data), function (err) {
