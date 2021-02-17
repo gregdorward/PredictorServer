@@ -9,52 +9,8 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 const AWS = require("aws-sdk");
 
-var whitelist = [
-  "https://gregdorward@github.io/predictor",
-  "http://localhost:3000",
-];
 
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      console.log(origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
 
-app.use(
-  cors({
-    origin: "https://gregdorward.github.io",
-  })
-);
-
-const s3 = new AWS.S3({
-  accessKeyId: process.env.ID,
-  secretAccessKey: process.env.SECRET,
-});
-
-const uploadFile = (file, name) => {
-  // Read content from the file
-  const fileContent = fs.readFileSync(file);
-
-  // Setting up S3 upload parameters
-  const params = {
-    Bucket: "predictorfiles",
-    Key: name, // File name you want to save as in S3
-    Body: fileContent,
-  };
-
-  // Uploading files to the bucket
-  s3.upload(params, function (err, data) {
-    if (err) {
-      throw err;
-    }
-    console.log(`File uploaded successfully. ${data.Location}`);
-  });
-};
 
 // const port = process.env.PORT || 5000;
 
@@ -81,6 +37,19 @@ const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    cors({
+      origin: "https://gregdorward.github.io",
+    })
+  );
+} else {
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+    })
+  );
+}
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
@@ -94,11 +63,37 @@ app.listen(process.env.PORT || 5000, function () {
   );
 });
 
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.ID,
+  secretAccessKey: process.env.SECRET,
+});
+
+const uploadFile = (file, name) => {
+  // Read content from the file
+  const fileContent = fs.readFileSync(file);
+
+  // Setting up S3 upload parameters
+  const params = {
+    Bucket: "predictorfiles",
+    Key: name, // File name you want to save as in S3
+    Body: fileContent,
+  };
+
+  // Uploading files to the bucket
+  s3.upload(params, function (err, data) {
+    if (err) {
+      throw err;
+    }
+    console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+
 app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>");
 });
 
-app.get("/todaysFixtures", cors(corsOptions), (req, res) => {
+app.get("/todaysFixtures", (req, res) => {
   fs.readFile("today.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -106,7 +101,7 @@ app.get("/todaysFixtures", cors(corsOptions), (req, res) => {
   });
 });
 
-app.get("/tomorrowsFixtures", cors(corsOptions), (req, res) => {
+app.get("/tomorrowsFixtures", (req, res) => {
   fs.readFile("tomorrow.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -114,7 +109,7 @@ app.get("/tomorrowsFixtures", cors(corsOptions), (req, res) => {
   });
 });
 
-app.get("/yesterdaysFixtures", cors(corsOptions), (req, res) => {
+app.get("/yesterdaysFixtures", (req, res) => {
   fs.readFile("yesterday.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -122,7 +117,7 @@ app.get("/yesterdaysFixtures", cors(corsOptions), (req, res) => {
   });
 });
 
-app.post("/postPredictions5todaysFixtures", cors(corsOptions), (req, res) => {
+app.post("/postPredictions5todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions5today.json`,
     JSON.stringify(req.body),
@@ -164,7 +159,7 @@ app.post(
   }
 );
 
-app.post("/postPredictions6todaysFixtures", cors(corsOptions), (req, res) => {
+app.post("/postPredictions6todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions6today.json`,
     JSON.stringify(req.body),
@@ -206,7 +201,7 @@ app.post(
   }
 );
 
-app.post("/postPredictions10todaysFixtures", cors(corsOptions), (req, res) => {
+app.post("/postPredictions10todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions10today.json`,
     JSON.stringify(req.body),
@@ -248,7 +243,7 @@ app.post(
   }
 );
 
-app.post("/allFormyesterdaysFixtures", cors(corsOptions), (req, res) => {
+app.post("/allFormyesterdaysFixtures", (req, res) => {
   fs.writeFile(
     `allFormyesterdaysFixtures.json`,
     JSON.stringify(req.body),
@@ -267,7 +262,7 @@ app.post("/allFormyesterdaysFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.post("/allFormtodaysFixtures", cors(corsOptions), (req, res) => {
+app.post("/allFormtodaysFixtures", (req, res) => {
   fs.writeFile(
     `allFormtodaysFixtures.json`,
     JSON.stringify(req.body),
@@ -283,7 +278,7 @@ app.post("/allFormtodaysFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.post("/allFormtomorrowsFixtures", cors(corsOptions), (req, res) => {
+app.post("/allFormtomorrowsFixtures", (req, res) => {
   fs.writeFile(
     `allFormtomorrowsFixtures.json`,
     JSON.stringify(req.body),
@@ -302,7 +297,7 @@ app.post("/allFormtomorrowsFixtures", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
+app.get("/formyesterdaysFixtures", async (req, res) => {
   const filePath = "allFormyesterdaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -337,7 +332,7 @@ app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
   });
 });
 
-app.get("/formtodaysFixtures", cors(corsOptions), async (req, res) => {
+app.get("/formtodaysFixtures", async (req, res) => {
   const filePath = "allFormtodaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -367,7 +362,7 @@ app.get("/formtodaysFixtures", cors(corsOptions), async (req, res) => {
   });
 });
 
-app.get("/formtomorrowFixtures", cors(corsOptions), async (req, res) => {
+app.get("/formtomorrowFixtures", async (req, res) => {
   const filePath = "allFormytomorrowsFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -397,39 +392,30 @@ app.get("/formtomorrowFixtures", cors(corsOptions), async (req, res) => {
   });
 });
 
-app.get("/yesterdaysFixturesPredictions5", cors(corsOptions), (req, res) => {
-  fs.readFile("tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
-})
+app.get("/yesterdaysFixturesPredictions5", (req, res) => {
+  fs.access(
+    "fixedPredictions5yesterday.json",
+    fs.constants.F_OK | fs.constants.W_OK,
+    (err) => {
+      if (err) {
+        console.error(
+          `${"fixedPredictions5yesterday.json"} ${
+            err.code === "ENOENT" ? "does not exist" : "is read-only"
+          }`
+        );
+        res.sendStatus(404);
+      } else {
+        fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
+          if (err) res.sendStatus(500);
+          const fixtures = JSON.parse(data);
+          res.send({ fixtures });
+        });
+      }
+    }
+  );
+});
 
-
-
-//   fs.access(
-//     "fixedPredictions5yesterday.json",
-//     fs.constants.F_OK | fs.constants.W_OK,
-//     (err) => {
-//       if (err) {
-//         console.error(
-//           `${"fixedPredictions5yesterday.json"} ${
-//             err.code === "ENOENT" ? "does not exist" : "is read-only"
-//           }`
-//         );
-//         res.sendStatus(404);
-//       } else {
-//         fs.readFile("fixedPredictions5yesterday.json", function (err, data) {
-//           if (err) res.sendStatus(500);
-//           const fixtures = JSON.parse(data);
-//           res.send({ fixtures });
-//         });
-//       }
-//     }
-//   );
-// });
-
-app.get("/yesterdaysFixturesPredictions6", cors(corsOptions), (req, res) => {
+app.get("/yesterdaysFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -456,7 +442,7 @@ app.get("/yesterdaysFixturesPredictions6", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/yesterdaysFixturesPredictions10", cors(corsOptions), (req, res) => {
+app.get("/yesterdaysFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -483,7 +469,7 @@ app.get("/yesterdaysFixturesPredictions10", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions5", cors(corsOptions), (req, res) => {
+app.get("/todaysFixturesPredictions5", (req, res) => {
   fs.access(
     "fixedPredictions5today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -506,7 +492,7 @@ app.get("/todaysFixturesPredictions5", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions6", cors(corsOptions), (req, res) => {
+app.get("/todaysFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -529,7 +515,7 @@ app.get("/todaysFixturesPredictions6", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/todaysFixturesPredictions10", cors(corsOptions), (req, res) => {
+app.get("/todaysFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -552,7 +538,7 @@ app.get("/todaysFixturesPredictions10", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions5", cors(corsOptions), (req, res) => {
+app.get("/tomorrowsFixturesPredictions5", (req, res) => {
   fs.access(
     "fixedPredictions5tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -575,7 +561,7 @@ app.get("/tomorrowsFixturesPredictions5", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions6", cors(corsOptions), (req, res) => {
+app.get("/tomorrowsFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -598,7 +584,7 @@ app.get("/tomorrowsFixturesPredictions6", cors(corsOptions), (req, res) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions10", cors(corsOptions), (req, res) => {
+app.get("/tomorrowsFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
