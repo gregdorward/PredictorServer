@@ -5,8 +5,6 @@ var fs = require("fs");
 var path = require("path");
 const fetch = require("node-fetch");
 var schedule = require("node-schedule");
-var bodyParser = require("body-parser");
-const { response } = require("express");
 const AWS = require("aws-sdk");
 
 console.log(process.env.NODE_ENV)
