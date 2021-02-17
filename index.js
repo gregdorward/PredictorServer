@@ -47,6 +47,8 @@ if (process.env.NODE_ENV === "production") {
     })
   );
 }
+app.options('*', cors()) // include before other routes
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
