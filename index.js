@@ -810,11 +810,12 @@ const renameYesterdaysForm = schedule.scheduleJob(
   async function () {
     var OLD_KEY = "allFormyesterdaysFixtures.json";
     var NEW_KEY = "testingARename.json";
+    var BUCKET_NAME = "predictorfiles"
 
     // Copy the object to a new location
     s3.copyObject({
       Bucket: "predictorfiles",
-      CopySource: `predictorfiles${OLD_KEY}`,
+      CopySource: `${BUCKET_NAME}${OLD_KEY}`,
       Key: NEW_KEY,
     })
       .promise()
