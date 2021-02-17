@@ -9,9 +9,6 @@ var bodyParser = require("body-parser");
 const { response } = require("express");
 const AWS = require("aws-sdk");
 
-
-
-
 // const port = process.env.PORT || 5000;
 
 const apiKey = process.env.API_KEY;
@@ -62,7 +59,6 @@ app.listen(process.env.PORT || 5000, function () {
     app.settings.env
   );
 });
-
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.ID,
@@ -138,7 +134,7 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
 
 app.post(
   "/postPredictions5tomorrowsFixtures",
-  cors(corsOptions),
+
   (req, res) => {
     fs.writeFile(
       `fixedPredictions5tomorrow.json`,
@@ -180,7 +176,7 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
 
 app.post(
   "/postPredictions6tomorrowsFixtures",
-  cors(corsOptions),
+
   (req, res) => {
     fs.writeFile(
       `fixedPredictions6tomorrow.json`,
@@ -222,7 +218,7 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
 
 app.post(
   "/postPredictions10tomorrowsFixtures",
-  cors(corsOptions),
+
   (req, res) => {
     fs.writeFile(
       `fixedPredictions10tomorrow.json`,
@@ -430,7 +426,7 @@ app.get("/yesterdaysFixturesPredictions6", (req, res) => {
       } else {
         fs.readFile(
           "fixedPredictions6yesterday.json",
-          cors(corsOptions),
+
           function (err, data) {
             if (err) res.sendStatus(500);
             const fixtures = JSON.parse(data);
@@ -457,7 +453,7 @@ app.get("/yesterdaysFixturesPredictions10", (req, res) => {
       } else {
         fs.readFile(
           "fixedPredictions10yesterday.json",
-          cors(corsOptions),
+
           function (err, data) {
             if (err) res.sendStatus(500);
             const fixtures = JSON.parse(data);
