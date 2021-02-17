@@ -20,7 +20,7 @@ const uploadFile = (file, name) => {
 
   // Setting up S3 upload parameters
   const params = {
-    Bucket: process.env.BUCKET_NAME,
+    Bucket: "predictorfiles",
     Key: name, // File name you want to save as in S3
     Body: fileContent,
   };
@@ -37,8 +37,6 @@ const uploadFile = (file, name) => {
 // const port = process.env.PORT || 5000;
 
 const apiKey = process.env.API_KEY;
-
-console.log(process.env.NODE_ENV);
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
@@ -86,7 +84,6 @@ app.listen(process.env.PORT || 5000, function () {
     this.address().port,
     app.settings.env
   );
-  console.log(apiKey);
 });
 
 app.get("/", function (req, res) {
@@ -123,10 +120,13 @@ app.post("/postPredictions5todaysFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions5today.json", "fixedPredictions5today.json");
+        uploadFile(
+          "fixedPredictions5today.json",
+          "fixedPredictions5today.json"
+        );
         res.sendStatus(200);
       }
     }
@@ -139,10 +139,13 @@ app.post("/postPredictions5tomorrowsFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions5tomorrow.json", "fixedPredictions5tomorrow.json");
+        uploadFile(
+          "fixedPredictions5tomorrow.json",
+          "fixedPredictions5tomorrow.json"
+        );
         res.sendStatus(200);
       }
     }
@@ -155,10 +158,13 @@ app.post("/postPredictions6todaysFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions6today.json", "fixedPredictions6today.json");
+        uploadFile(
+          "fixedPredictions6today.json",
+          "fixedPredictions6today.json"
+        );
         res.sendStatus(200);
       }
     }
@@ -171,10 +177,13 @@ app.post("/postPredictions6tomorrowsFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions6tomorrow.json", "fixedPredictions6tomorrow.json");
+        uploadFile(
+          "fixedPredictions6tomorrow.json",
+          "fixedPredictions6tomorrow.json"
+        );
         res.sendStatus(200);
       }
     }
@@ -187,10 +196,13 @@ app.post("/postPredictions10todaysFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions10today.json", "fixedPredictions10today.json");
+        uploadFile(
+          "fixedPredictions10today.json",
+          "fixedPredictions10today.json"
+        );
         res.sendStatus(200);
       }
     }
@@ -203,21 +215,174 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
     JSON.stringify(req.body),
     function (err) {
       if (err) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         return console.log(err);
       } else {
-        uploadFile("fixedPredictions10tomorrow.json", "fixedPredictions10tomorrow.json");
+        uploadFile(
+          "fixedPredictions10tomorrow.json",
+          "fixedPredictions10tomorrow.json"
+        );
         res.sendStatus(200);
       }
     }
   );
 });
 
-app.post("/allForm", (req, res) => {
-  fs.writeFile(`allForm.json`, JSON.stringify(req.body), function (err) {
-    if (err) return console.log(err);
+app.post("/allFormyesterdaysFixtures", (req, res) => {
+  fs.writeFile(
+    `allFormyesterdaysFixtures.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) {
+        res.sendStatus(500);
+        return console.log(err);
+      } else {
+        uploadFile(
+          "allFormyesterdaysFixtures.json",
+          "allFormyesterdaysFixtures.json"
+        );
+        res.sendStatus(200);
+      }
+    }
+  );
+});
+
+app.post("/allFormtodaysFixtures", (req, res) => {
+  fs.writeFile(
+    `allFormtodaysFixtures.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) {
+        res.sendStatus(500);
+        return console.log(err);
+      } else {
+        uploadFile("allFormtodaysFixtures.json", "allFormtodaysFixtures.json");
+        res.sendStatus(200);
+      }
+    }
+  );
+});
+
+app.post("/allFormtomorrowsFixtures", (req, res) => {
+  fs.writeFile(
+    `allFormtomorrowsFixtures.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) {
+        res.sendStatus(500);
+        return console.log(err);
+      } else {
+        uploadFile(
+          "allFormtomorrowsFixtures.json",
+          "allFormtomorrowsFixtures.json"
+        );
+        res.sendStatus(200);
+      }
+    }
+  );
+});
+
+const downloadFile = (filePath, bucketName, key, callback) => {
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) console.error(err);
+    fs.writeFileSync(filePath, data.Body.toString());
+    console.log(`${filePath} has been created!`);
+    return;
   });
-  res.sendStatus(200);
+};
+
+app.get("/formyesterdaysFixtures", async (req, res) => {
+  const filePath = "allFormyesterdaysFixtures.json";
+  const params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) console.error(err);
+    fs.writeFileSync(filePath, data.Body.toString());
+    console.log(`${filePath} has been created!`);
+
+    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        console.error(
+          `${filePath} ${
+            err.code === "ENOENT" ? "does not exist" : "is read-only"
+          }`
+        );
+        res.sendStatus(404);
+      } else {
+        fs.readFile(filePath, function (err, data) {
+          if (err) res.sendStatus(500);
+          const form = JSON.parse(data);
+          res.send({ form });
+        });
+      }
+    });
+  });
+});
+
+app.get("/formtodaysFixtures", async (req, res) => {
+  const filePath = "allFormtodaysFixtures.json";
+  const params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) console.error(err);
+    fs.writeFileSync(filePath, data.Body.toString());
+    console.log(`${filePath} has been created!`);
+
+    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        console.error(
+          `${filePath} ${
+            err.code === "ENOENT" ? "does not exist" : "is read-only"
+          }`
+        );
+        res.sendStatus(404);
+      } else {
+        fs.readFile(filePath, function (err, data) {
+          if (err) res.sendStatus(500);
+          const form = JSON.parse(data);
+          res.send({ form });
+        });
+      }
+    });
+  });
+});
+
+app.get("/formtomorrowFixtures", async (req, res) => {
+  const filePath = "allFormytomorrowsFixtures.json";
+  const params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) console.error(err);
+    fs.writeFileSync(filePath, data.Body.toString());
+    console.log(`${filePath} has been created!`);
+
+    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        console.error(
+          `${filePath} ${
+            err.code === "ENOENT" ? "does not exist" : "is read-only"
+          }`
+        );
+        res.sendStatus(404);
+      } else {
+        fs.readFile(filePath, function (err, data) {
+          if (err) res.sendStatus(500);
+          const form = JSON.parse(data);
+          res.send({ form });
+        });
+      }
+    });
+  });
 });
 
 app.get("/yesterdaysFixturesPredictions5", (req, res) => {
@@ -637,5 +802,32 @@ const writeTomorrowsPredictions = schedule.scheduleJob(
         console.log(`file fixedPredictions10tomorrow.json written`);
       }
     );
+  }
+);
+
+const renameYesterdaysForm = schedule.scheduleJob(
+  "00 12 16 * * *",
+  async function () {
+    var OLD_KEY = "allFormyesterdaysFixtures.json";
+    var NEW_KEY = "testingARename.json";
+
+    // Copy the object to a new location
+    s3.copyObject({
+      Bucket: "predictorfiles",
+      CopySource: `predictorfiles${OLD_KEY}`,
+      Key: NEW_KEY,
+    })
+      .promise()
+      .then(() =>
+        // Delete the old object
+        s3
+          .deleteObject({
+            Bucket: "predictorfiles",
+            Key: OLD_KEY,
+          })
+          .promise()
+      )
+      // Error handling is left up to reader
+      .catch((e) => console.error(e));
   }
 );
