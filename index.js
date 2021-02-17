@@ -303,7 +303,7 @@ app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-  s3.getObject(params, cors(corsOptions), (err, data) => {
+  s3.getObject(params, (err, data) => {
     if (err) console.error(err);
     fs.writeFileSync(filePath, data.Body.toString());
     console.log(`${filePath} has been created!`);
