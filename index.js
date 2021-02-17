@@ -3,29 +3,24 @@ var cors = require("cors");
 var app = express();
 var fs = require("fs");
 var path = require("path");
-const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 const AWS = require("aws-sdk");
 
 console.log(process.env.NODE_ENV)
 
-app.use(cors())
-
-
-// if (process.env.NODE_ENV === "production") {
-//   app.use(
-//     cors({
-//       origin: "https://gregdorward.github.io",
-//     })
-//   );
-// } else {
-//   app.use(
-//     cors({
-//       origin: "http://localhost:3000",
-//     })
-//   );
-// }
-// app.options('*', cors()) // include before other routes
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    cors({
+      origin: "https://gregdorward.github.io",
+    })
+  );
+} else {
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+    })
+  );
+}
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
