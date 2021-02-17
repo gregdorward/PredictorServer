@@ -1,6 +1,7 @@
+const cors = require("cors");
+
 var express = require("express");
-var cors = require("cors");
-var app = express();
+
 var fs = require("fs");
 var path = require("path");
 var schedule = require("node-schedule");
@@ -8,19 +9,29 @@ const AWS = require("aws-sdk");
 
 console.log(process.env.NODE_ENV)
 
-if (process.env.NODE_ENV === "production") {
-  app.use(
-    cors({
-      origin: "https://gregdorward.github.io",
-    })
-  );
-} else {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-    })
-  );
-}
+app.use(
+  cors({
+    allowedHeaders: ["authorization", "Content-Type"], // you can change the headers
+    exposedHeaders: ["authorization"], // you can change the headers
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    preflightContinue: false
+  }),
+);
+
+// if (process.env.NODE_ENV === "production") {
+//   app.use(
+//     cors({
+//       origin: "https://gregdorward.github.io",
+//     })
+//   );
+// } else {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:3000",
+//     })
+//   );
+// }
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
