@@ -303,7 +303,7 @@ app.get("/formyesterdaysFixtures", cors(corsOptions), async (req, res) => {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-  s3.getObject(params, (err, data) => {
+  s3.getObject(params, cors(corsOptions), (err, data) => {
     if (err) console.error(err);
     fs.writeFileSync(filePath, data.Body.toString());
     console.log(`${filePath} has been created!`);
@@ -617,7 +617,6 @@ const deleteYesterdaysForm = schedule.scheduleJob(
   "45 59 23 * * *",
   async function () {
     var OLD_KEY = "allFormyesterdaysFixtures.json";
-    var NEW_KEY = "testingARename.json";
     var BUCKET_NAME = "predictorfiles"
 
         // Delete the old object
