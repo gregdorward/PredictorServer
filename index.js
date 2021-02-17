@@ -11,20 +11,23 @@ const AWS = require("aws-sdk");
 
 console.log(process.env.NODE_ENV)
 
-if (process.env.NODE_ENV === "production") {
-  app.use(
-    cors({
-      origin: "https://gregdorward.github.io",
-    })
-  );
-} else {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-    })
-  );
-}
-app.options('*', cors()) // include before other routes
+app.use(cors())
+
+
+// if (process.env.NODE_ENV === "production") {
+//   app.use(
+//     cors({
+//       origin: "https://gregdorward.github.io",
+//     })
+//   );
+// } else {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:3000",
+//     })
+//   );
+// }
+// app.options('*', cors()) // include before other routes
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
