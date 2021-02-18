@@ -346,8 +346,8 @@ app.get("/formtodaysFixtures", async (req, res) => {
   };
   s3.getObject(params, (err, data) => {
     if (err) console.error(err);
-    fs.writeFileSync(filePath, data.Body.toString());
-    console.log(`${filePath} has been created!`);
+    // fs.writeFileSync(filePath, data.Body.toString());
+    // console.log(`${filePath} has been created!`);
 
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
