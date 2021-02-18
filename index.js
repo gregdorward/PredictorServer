@@ -1,6 +1,6 @@
 var express = require("express");
-var cors = require("cors");
 var app = express();
+var cors = require('cors');
 var fs = require("fs");
 var path = require("path");
 const fetch = require("node-fetch");
@@ -8,23 +8,28 @@ var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 
+
+var app = express();
+app.use(cors());
+
+
 console.log(process.env.NODE_ENV);
 
 
-if (process.env.NODE_ENV === "production") {
-  app.use(
-    cors({
-      origin: "https://gregdorward.github.io",
-    })
-  );
-} else {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-    })
-  );
-}
-app.options('*', cors()) // include before other routes
+// if (process.env.NODE_ENV === "production") {
+//   app.use(
+//     cors({
+//       origin: "https://gregdorward.github.io",
+//     })
+//   );
+// } else {
+//   app.use(
+//     cors({
+//       origin: "http://localhost:3000",
+//     })
+//   );
+// }
+// app.options('*', cors()) // include before other routes
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
@@ -89,11 +94,11 @@ const uploadFile = (file, name) => {
   });
 };
 
-app.get("/", function (req, res, next) {
+app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>");
 });
 
-app.get("/todaysFixtures", (req, res, next) => {
+app.get("/todaysFixtures", (req, res) => {
   fs.readFile("today.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -101,7 +106,7 @@ app.get("/todaysFixtures", (req, res, next) => {
   });
 });
 
-app.get("/tomorrowsFixtures", (req, res, next) => {
+app.get("/tomorrowsFixtures", (req, res) => {
   fs.readFile("tomorrow.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -109,7 +114,7 @@ app.get("/tomorrowsFixtures", (req, res, next) => {
   });
 });
 
-app.get("/yesterdaysFixtures", (req, res, next) => {
+app.get("/yesterdaysFixtures", (req, res) => {
   fs.readFile("yesterday.json", function (err, data) {
     if (err) res.sendStatus(404);
     const fixtures = JSON.parse(data);
@@ -117,7 +122,7 @@ app.get("/yesterdaysFixtures", (req, res, next) => {
   });
 });
 
-app.post("/postPredictions5todaysFixtures", (req, res, next) => {
+app.post("/postPredictions5todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions5today.json`,
     JSON.stringify(req.body),
@@ -139,7 +144,7 @@ app.post("/postPredictions5todaysFixtures", (req, res, next) => {
 app.post(
   "/postPredictions5tomorrowsFixtures",
 
-  (req, res, next) => {
+  (req, res) => {
     fs.writeFile(
       `fixedPredictions5tomorrow.json`,
       JSON.stringify(req.body),
@@ -159,7 +164,7 @@ app.post(
   }
 );
 
-app.post("/postPredictions6todaysFixtures", (req, res, next) => {
+app.post("/postPredictions6todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions6today.json`,
     JSON.stringify(req.body),
@@ -181,7 +186,7 @@ app.post("/postPredictions6todaysFixtures", (req, res, next) => {
 app.post(
   "/postPredictions6tomorrowsFixtures",
 
-  (req, res, next) => {
+  (req, res) => {
     fs.writeFile(
       `fixedPredictions6tomorrow.json`,
       JSON.stringify(req.body),
@@ -201,7 +206,7 @@ app.post(
   }
 );
 
-app.post("/postPredictions10todaysFixtures", (req, res, next) => {
+app.post("/postPredictions10todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions10today.json`,
     JSON.stringify(req.body),
@@ -223,7 +228,7 @@ app.post("/postPredictions10todaysFixtures", (req, res, next) => {
 app.post(
   "/postPredictions10tomorrowsFixtures",
 
-  (req, res, next) => {
+  (req, res) => {
     fs.writeFile(
       `fixedPredictions10tomorrow.json`,
       JSON.stringify(req.body),
@@ -243,7 +248,7 @@ app.post(
   }
 );
 
-app.post("/allFormyesterdaysFixtures", (req, res, next) => {
+app.post("/allFormyesterdaysFixtures", (req, res) => {
   fs.writeFile(
     `allFormyesterdaysFixtures.json`,
     JSON.stringify(req.body),
@@ -262,7 +267,7 @@ app.post("/allFormyesterdaysFixtures", (req, res, next) => {
   );
 });
 
-app.post("/allFormtodaysFixtures", (req, res, next) => {
+app.post("/allFormtodaysFixtures", (req, res) => {
   fs.writeFile(
     `allFormtodaysFixtures.json`,
     JSON.stringify(req.body),
@@ -278,7 +283,7 @@ app.post("/allFormtodaysFixtures", (req, res, next) => {
   );
 });
 
-app.post("/allFormtomorrowsFixtures", (req, res, next) => {
+app.post("/allFormtomorrowsFixtures", (req, res) => {
   fs.writeFile(
     `allFormtomorrowsFixtures.json`,
     JSON.stringify(req.body),
@@ -297,7 +302,7 @@ app.post("/allFormtomorrowsFixtures", (req, res, next) => {
   );
 });
 
-app.get("/formyesterdaysFixtures", async (req, res, next) => {
+app.get("/formyesterdaysFixtures", async (req, res) => {
   const filePath = "allFormyesterdaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -333,7 +338,7 @@ app.get("/formyesterdaysFixtures", async (req, res, next) => {
   });
 });
 
-app.get("/formtodaysFixtures", async (req, res, next) => {
+app.get("/formtodaysFixtures", async (req, res) => {
   const filePath = "allFormtodaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -363,7 +368,7 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
   });
 });
 
-app.get("/formtomorrowFixtures", async (req, res, next) => {
+app.get("/formtomorrowFixtures", async (req, res) => {
   const filePath = "allFormytomorrowsFixtures.json";
   const params = {
     Bucket: "predictorfiles",
@@ -393,7 +398,7 @@ app.get("/formtomorrowFixtures", async (req, res, next) => {
   });
 });
 
-app.get("/yesterdaysFixturesPredictions5", (req, res, next) => {
+app.get("/yesterdaysFixturesPredictions5", (req, res) => {
   fs.access(
     "fixedPredictions5yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -416,7 +421,7 @@ app.get("/yesterdaysFixturesPredictions5", (req, res, next) => {
   );
 });
 
-app.get("/yesterdaysFixturesPredictions6", (req, res, next) => {
+app.get("/yesterdaysFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -443,7 +448,7 @@ app.get("/yesterdaysFixturesPredictions6", (req, res, next) => {
   );
 });
 
-app.get("/yesterdaysFixturesPredictions10", (req, res, next) => {
+app.get("/yesterdaysFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10yesterday.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -470,7 +475,7 @@ app.get("/yesterdaysFixturesPredictions10", (req, res, next) => {
   );
 });
 
-app.get("/todaysFixturesPredictions5", (req, res, next) => {
+app.get("/todaysFixturesPredictions5", (req, res) => {
   fs.access(
     "fixedPredictions5today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -493,7 +498,7 @@ app.get("/todaysFixturesPredictions5", (req, res, next) => {
   );
 });
 
-app.get("/todaysFixturesPredictions6", (req, res, next) => {
+app.get("/todaysFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -516,7 +521,7 @@ app.get("/todaysFixturesPredictions6", (req, res, next) => {
   );
 });
 
-app.get("/todaysFixturesPredictions10", (req, res, next) => {
+app.get("/todaysFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10today.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -539,7 +544,7 @@ app.get("/todaysFixturesPredictions10", (req, res, next) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions5", (req, res, next) => {
+app.get("/tomorrowsFixturesPredictions5", (req, res) => {
   fs.access(
     "fixedPredictions5tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -562,7 +567,7 @@ app.get("/tomorrowsFixturesPredictions5", (req, res, next) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions6", (req, res, next) => {
+app.get("/tomorrowsFixturesPredictions6", (req, res) => {
   fs.access(
     "fixedPredictions6tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
@@ -585,7 +590,7 @@ app.get("/tomorrowsFixturesPredictions6", (req, res, next) => {
   );
 });
 
-app.get("/tomorrowsFixturesPredictions10", (req, res, next) => {
+app.get("/tomorrowsFixturesPredictions10", (req, res) => {
   fs.access(
     "fixedPredictions10tomorrow.json",
     fs.constants.F_OK | fs.constants.W_OK,
