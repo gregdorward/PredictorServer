@@ -330,7 +330,7 @@ app.get("/formtodaysFixtures", async (req, res) => {
   const filePath = "allFormtodaysFixtures.json";
   const params = {
     Bucket: "predictorfiles",
-    Key: filePath,
+    Key: "allFormtodaysFixtures.json",
   };
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
@@ -369,7 +369,7 @@ app.get("/formtomorrowFixtures", async (req, res) => {
   const filePath = "allFormtomorrowsFixtures.json";
   const params = {
     Bucket: "predictorfiles",
-    Key: filePath,
+    Key: "allFormtomorrowsFixtures.json",
   };
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
@@ -397,7 +397,7 @@ app.get("/formtomorrowFixtures", async (req, res) => {
         }
       });
     } else {
-      console.log("if todays' form is requested, get it from s3");
+      console.log("if tomorrows' form is requested, get it from s3");
       let objectData = data.Body.toString('utf-8');
       res.send(objectData)
     }
