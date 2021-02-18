@@ -309,33 +309,53 @@ app.get("/formyesterdaysFixtures", async (req, res) => {
     Key: filePath,
   };
   console.log("Function called");
-  s3.getObject(params, (err, data) => {
-    console.log("Getting S3 object");
+
+
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    console.log("fs.access");
 
     if (err) {
-      console.error(err);
-      fs.writeFileSync(filePath, data.Body.toString());
-      console.log(`${filePath} has been created!`);
+      console.error(
+        `${filePath} ${
+          err.code === "ENOENT" ? "does not exist" : "is read-only"
+        }`
+      );
+      res.sendStatus(404);
+    } else {
+      fs.readFile(filePath, function (err, data) {
+        if (err) res.sendStatus(500);
+        const form = JSON.parse(data);
+        res.send({ form });
+      });
     }
-    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      console.log("fs.access");
-
-      if (err) {
-        console.error(
-          `${filePath} ${
-            err.code === "ENOENT" ? "does not exist" : "is read-only"
-          }`
-        );
-        res.sendStatus(404);
-      } else {
-        fs.readFile(filePath, function (err, data) {
-          if (err) res.sendStatus(500);
-          const form = JSON.parse(data);
-          res.send({ form });
-        });
-      }
-    });
   });
+  // s3.getObject(params, (err, data) => {
+  //   console.log("Getting S3 object");
+
+  //   if (err) {
+  //     console.error(err);
+  //     fs.writeFileSync(filePath, data.Body.toString());
+  //     console.log(`${filePath} has been created!`);
+  //   }
+  //   fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+  //     console.log("fs.access");
+
+  //     if (err) {
+  //       console.error(
+  //         `${filePath} ${
+  //           err.code === "ENOENT" ? "does not exist" : "is read-only"
+  //         }`
+  //       );
+  //       res.sendStatus(404);
+  //     } else {
+  //       fs.readFile(filePath, function (err, data) {
+  //         if (err) res.sendStatus(500);
+  //         const form = JSON.parse(data);
+  //         res.send({ form });
+  //       });
+  //     }
+  //   });
+  // });
 });
 
 app.get("/formtodaysFixtures", async (req, res) => {
