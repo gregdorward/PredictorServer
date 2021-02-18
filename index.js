@@ -8,11 +8,14 @@ var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 
-console.log(process.env.NODE_ENV)
+console.log(process.env.NODE_ENV);
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "https://gregdorward.github.io"); // update to match the domain you will make the request from
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   next();
 });
 
@@ -61,8 +64,6 @@ const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
-
-
 app.listen(process.env.PORT || 5000, function () {
   console.log(
     "Express server listening on port %d in %s mode",
@@ -96,7 +97,7 @@ const uploadFile = (file, name) => {
   });
 };
 
-app.get("/", function(req, res, next) {
+app.get("/", function (req, res, next) {
   res.send("<h1>Hello World!</h1>");
 });
 
@@ -314,10 +315,11 @@ app.get("/formyesterdaysFixtures", async (req, res, next) => {
   s3.getObject(params, (err, data) => {
     console.log("Getting S3 object");
 
-    if (err) console.error(err);
-    fs.writeFileSync(filePath, data.Body.toString());
-    console.log(`${filePath} has been created!`);
-
+    if (err) {
+      console.error(err);
+      fs.writeFileSync(filePath, data.Body.toString());
+      console.log(`${filePath} has been created!`);
+    }
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       console.log("fs.access");
 
