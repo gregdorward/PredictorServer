@@ -310,16 +310,8 @@ app.get("/formyesterdaysFixtures", async (req, res) => {
   };
   console.log("Function called");
   s3.getObject(params, (err, data) => {
-    console.log("Getting S3 object");
-
-    if (err) {
-      console.error(err);
-      fs.writeFileSync(filePath, data.Body.toString());
-      console.log(`${filePath} has been created!`);
-    }
+    if (err) console.error(err);
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      console.log("fs.access");
-
       if (err) {
         console.error(
           `${filePath} ${
@@ -346,9 +338,6 @@ app.get("/formtodaysFixtures", async (req, res) => {
   };
   s3.getObject(params, (err, data) => {
     if (err) console.error(err);
-    // fs.writeFileSync(filePath, data.Body.toString());
-    // console.log(`${filePath} has been created!`);
-
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         console.error(
@@ -376,9 +365,19 @@ app.get("/formtomorrowFixtures", async (req, res) => {
   };
   s3.getObject(params, (err, data) => {
     if (err) console.error(err);
-    fs.writeFileSync(filePath, data.Body.toString());
-    console.log(`${filePath} has been created!`);
-
+    else {
+      fs.writeFileSync(filePath, data.Body.toString(), (err) => {
+        if (err) {
+          console.error(
+            `${filePath} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+          res.sendStatus(404);
+        }
+      });
+      console.log(`${filePath} has been created!`);
+    }
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         console.error(
