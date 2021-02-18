@@ -360,35 +360,47 @@ app.get("/formtodaysFixtures", async (req, res) => {
     } else {
       console.log("if todays' form is requested, get it from s3");
       let objectData = data.Body.toString('utf-8');
-      console.log(objectData)
+      res.send(objectData)
     }
   });
 });
 
 app.get("/formtomorrowFixtures", async (req, res) => {
-  const filePath = "allFormytomorrowsFixtures.json";
+  const filePath = "allFormtomorrowsFixtures.json";
   const params = {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-  s3.getObject(params, (err) => {
-    if (err) console.error(err);
-    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      if (err) {
-        console.error(
-          `${filePath} ${
-            err.code === "ENOENT" ? "does not exist" : "is read-only"
-          }`
-        );
-        res.sendStatus(404);
-      } else {
-        fs.readFile(filePath, function (err, data) {
-          if (err) res.sendStatus(500);
-          const form = JSON.parse(data);
-          res.send({ form });
-        });
-      }
-    });
+  // if todays' form is requested, get it from s3
+  s3.getObject(params, (err, data) => {
+
+    if (err){
+      console.error(err);
+      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+        if (err) {
+          console.error(
+            `${filePath} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+          res.sendStatus(404);
+        } else {
+          console.log(
+            "if it does exist in the local file system, fetch it from there and return it to the client"
+          );
+          // if it does exist in the local file system, fetch it from there and return it to the client
+          fs.readFile(filePath, function (err, data) {
+            if (err) res.sendStatus(500);
+            const form = JSON.parse(data);
+            res.send({ form });
+          });
+        }
+      });
+    } else {
+      console.log("if todays' form is requested, get it from s3");
+      let objectData = data.Body.toString('utf-8');
+      res.send(objectData)
+    }
   });
 });
 
