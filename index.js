@@ -335,6 +335,7 @@ app.get("/formtodaysFixtures", async (req, res) => {
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
     console.log("if todays' form is requested, get it from s3");
+    console.log(JSON.parse(data))
     if (err) console.error(err);
     console.log(
       "if it can't be fetched from s3, check to see if it exists in the local file system"
