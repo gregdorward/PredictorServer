@@ -327,8 +327,8 @@ app.get("/formyesterdaysFixtures", async (req, res) => {
 });
 
 app.get("/formtodaysFixtures", async (req, res) => {
-  const filePath = "allFormtodaysFixtures.json";
-  const params = {
+  let filePath = "allFormtodaysFixtures.json";
+  let params = {
     Bucket: "predictorfiles",
     Key: "allFormtodaysFixtures.json",
   };
@@ -366,8 +366,8 @@ app.get("/formtodaysFixtures", async (req, res) => {
 });
 
 app.get("/formtomorrowFixtures", async (req, res) => {
-  const filePath = "allFormtomorrowsFixtures.json";
-  const params = {
+  let filePath = "allFormtomorrowsFixtures.json";
+  let params = {
     Bucket: "predictorfiles",
     Key: "allFormtomorrowsFixtures.json",
   };
