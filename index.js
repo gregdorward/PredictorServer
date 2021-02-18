@@ -364,19 +364,20 @@ app.get("/formtomorrowFixtures", async (req, res) => {
     Key: filePath,
   };
   s3.getObject(params, (err, data) => {
+    console.log("fetching s3 object")
     if (err) console.error(err);
     else {
       fs.writeFileSync(filePath, data.Body.toString(), (err) => {
+        console.log(`${filePath} has been written based on bucket content`)
         if (err) {
-          console.error(
-            `${filePath} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
+          console.log("file not written to local path")
+          console.error(err);
           res.sendStatus(404);
         } else {
           fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+            console.log("accessing local path")
             if (err) {
+              console.log(err)
               console.error(
                 `${filePath} ${
                   err.code === "ENOENT" ? "does not exist" : "is read-only"
@@ -384,6 +385,7 @@ app.get("/formtomorrowFixtures", async (req, res) => {
               );
               res.sendStatus(404);
             } else {
+              console.log("reading local file content and returning")
               fs.readFile(filePath, function (err, data) {
                 if (err) res.sendStatus(500);
                 const form = JSON.parse(data);
