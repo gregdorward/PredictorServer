@@ -374,26 +374,27 @@ app.get("/formtomorrowFixtures", async (req, res) => {
             }`
           );
           res.sendStatus(404);
+        } else {
+          fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+            if (err) {
+              console.error(
+                `${filePath} ${
+                  err.code === "ENOENT" ? "does not exist" : "is read-only"
+                }`
+              );
+              res.sendStatus(404);
+            } else {
+              fs.readFile(filePath, function (err, data) {
+                if (err) res.sendStatus(500);
+                const form = JSON.parse(data);
+                res.send({ form });
+              });
+            }
+          });
         }
+        console.log(`${filePath} has been created!`);
       });
-      console.log(`${filePath} has been created!`);
     }
-    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      if (err) {
-        console.error(
-          `${filePath} ${
-            err.code === "ENOENT" ? "does not exist" : "is read-only"
-          }`
-        );
-        res.sendStatus(404);
-      } else {
-        fs.readFile(filePath, function (err, data) {
-          if (err) res.sendStatus(500);
-          const form = JSON.parse(data);
-          res.send({ form });
-        });
-      }
-    });
   });
 });
 
