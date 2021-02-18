@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-var cors = require('cors');
+var cors = require("cors");
 var fs = require("fs");
 var path = require("path");
 const fetch = require("node-fetch");
@@ -8,13 +8,10 @@ var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 
-
 var app = express();
 app.use(cors());
 
-
 console.log(process.env.NODE_ENV);
-
 
 // if (process.env.NODE_ENV === "production") {
 //   app.use(
@@ -308,7 +305,6 @@ app.get("/formyesterdaysFixtures", async (req, res) => {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-  console.log("Function called");
   s3.getObject(params, (err, data) => {
     if (err) console.error(err);
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
@@ -336,7 +332,65 @@ app.get("/formtodaysFixtures", async (req, res) => {
     Bucket: "predictorfiles",
     Key: filePath,
   };
+  // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
+    console.log("if todays' form is requested, get it from s3")
+    if (err) console.error(err);
+    console.log("if it can't be fetched from s3, check to see if it exists in the local file system")
+    // if it can't be fetched from s3, check to see if it exists in the local file system
+    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        console.error(
+          `${filePath} ${
+            err.code === "ENOENT" ? "does not exist" : "is read-only"
+          }`
+        );
+        console.log("if it doesn't exist in the fs, write a new file to the fs")
+        // if it doesn't exist in the fs, write a new file to the fs
+        fs.writeFile(
+          `allFormtodaysFixtures.json`,
+          JSON.parse(data),
+          function (err) {
+            if (err) {
+              res.sendStatus(500);
+              return console.log(err);
+            } else {
+              console.log("if the file is created in the local fs, upload it to s3")
+              // if the file is created in the local fs, upload it to s3
+              uploadFile(
+                "allFormtodaysFixtures.json",
+                "allFormtodaysFixtures.json"
+              );
+              res.sendStatus(200);
+              console.log("finally, return the file contents form the local fs to the client")
+              // finally, return the file contents form the local fs to the client
+              fs.readFile(filePath, function (err, data) {
+                if (err) res.sendStatus(500);
+                const form = JSON.parse(data);
+                res.send({ form });
+              });
+            }
+          }
+        );
+      }
+      console.log("if it does exist in the local file system, fetch it from there and return it to the client")
+      // if it does exist in the local file system, fetch it from there and return it to the client
+      fs.readFile(filePath, function (err, data) {
+        if (err) res.sendStatus(500);
+        const form = JSON.parse(data);
+        res.send({ form });
+      });
+    });
+  });
+});
+
+app.get("/formtomorrowFixtures", async (req, res) => {
+  const filePath = "allFormytomorrowsFixtures.json";
+  const params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  s3.getObject(params, (err) => {
     if (err) console.error(err);
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
@@ -354,49 +408,6 @@ app.get("/formtodaysFixtures", async (req, res) => {
         });
       }
     });
-  });
-});
-
-app.get("/formtomorrowFixtures", async (req, res) => {
-  const filePath = "allFormytomorrowsFixtures.json";
-  const params = {
-    Bucket: "predictorfiles",
-    Key: filePath,
-  };
-  s3.getObject(params, (err, data) => {
-    console.log("fetching s3 object")
-    if (err) console.error(err);
-    else {
-      fs.writeFileSync(filePath, data.Body.toString(), (err) => {
-        console.log(`${filePath} has been written based on bucket content`)
-        if (err) {
-          console.log("file not written to local path")
-          console.error(err);
-          res.sendStatus(404);
-        } else {
-          fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-            console.log("accessing local path")
-            if (err) {
-              console.log(err)
-              console.error(
-                `${filePath} ${
-                  err.code === "ENOENT" ? "does not exist" : "is read-only"
-                }`
-              );
-              res.sendStatus(404);
-            } else {
-              console.log("reading local file content and returning")
-              fs.readFile(filePath, function (err, data) {
-                if (err) res.sendStatus(500);
-                const form = JSON.parse(data);
-                res.send({ form });
-              });
-            }
-          });
-        }
-        console.log(`${filePath} has been created!`);
-      });
-    }
   });
 });
 
