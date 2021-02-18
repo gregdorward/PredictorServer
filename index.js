@@ -334,9 +334,11 @@ app.get("/formtodaysFixtures", async (req, res) => {
   };
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
-    console.log("if todays' form is requested, get it from s3")
+    console.log("if todays' form is requested, get it from s3");
     if (err) console.error(err);
-    console.log("if it can't be fetched from s3, check to see if it exists in the local file system")
+    console.log(
+      "if it can't be fetched from s3, check to see if it exists in the local file system"
+    );
     // if it can't be fetched from s3, check to see if it exists in the local file system
     fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
@@ -345,41 +347,18 @@ app.get("/formtodaysFixtures", async (req, res) => {
             err.code === "ENOENT" ? "does not exist" : "is read-only"
           }`
         );
-        console.log("if it doesn't exist in the fs, write a new file to the fs")
-        // if it doesn't exist in the fs, write a new file to the fs
-        fs.writeFile(
-          `allFormtodaysFixtures.json`,
-          JSON.parse(data),
-          function (err) {
-            if (err) {
-              res.sendStatus(500);
-              return console.log(err);
-            } else {
-              console.log("if the file is created in the local fs, upload it to s3")
-              // if the file is created in the local fs, upload it to s3
-              uploadFile(
-                "allFormtodaysFixtures.json",
-                "allFormtodaysFixtures.json"
-              );
-              res.sendStatus(200);
-              console.log("finally, return the file contents form the local fs to the client")
-              // finally, return the file contents form the local fs to the client
-              fs.readFile(filePath, function (err, data) {
-                if (err) res.sendStatus(500);
-                const form = JSON.parse(data);
-                res.send({ form });
-              });
-            }
-          }
+        res.sendStatus(404);
+      } else {
+        console.log(
+          "if it does exist in the local file system, fetch it from there and return it to the client"
         );
+        // if it does exist in the local file system, fetch it from there and return it to the client
+        fs.readFile(filePath, function (err, data) {
+          if (err) res.sendStatus(500);
+          const form = JSON.parse(data);
+          res.send({ form });
+        });
       }
-      console.log("if it does exist in the local file system, fetch it from there and return it to the client")
-      // if it does exist in the local file system, fetch it from there and return it to the client
-      fs.readFile(filePath, function (err, data) {
-        if (err) res.sendStatus(500);
-        const form = JSON.parse(data);
-        res.send({ form });
-      });
     });
   });
 });
