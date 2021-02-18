@@ -334,34 +334,34 @@ app.get("/formtodaysFixtures", async (req, res) => {
   };
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
-    console.log(params)
-    console.log("if todays' form is requested, get it from s3");
-    console.log(data)
-    if (err) console.error(err);
-    console.log(
-      "if it can't be fetched from s3, check to see if it exists in the local file system"
-    );
-    // if it can't be fetched from s3, check to see if it exists in the local file system
-    fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-      if (err) {
-        console.error(
-          `${filePath} ${
-            err.code === "ENOENT" ? "does not exist" : "is read-only"
-          }`
-        );
-        res.sendStatus(404);
-      } else {
-        console.log(
-          "if it does exist in the local file system, fetch it from there and return it to the client"
-        );
-        // if it does exist in the local file system, fetch it from there and return it to the client
-        fs.readFile(filePath, function (err, data) {
-          if (err) res.sendStatus(500);
-          const form = JSON.parse(data);
-          res.send({ form });
-        });
-      }
-    });
+
+    if (err){
+      console.error(err);
+      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+        if (err) {
+          console.error(
+            `${filePath} ${
+              err.code === "ENOENT" ? "does not exist" : "is read-only"
+            }`
+          );
+          res.sendStatus(404);
+        } else {
+          console.log(
+            "if it does exist in the local file system, fetch it from there and return it to the client"
+          );
+          // if it does exist in the local file system, fetch it from there and return it to the client
+          fs.readFile(filePath, function (err, data) {
+            if (err) res.sendStatus(500);
+            const form = JSON.parse(data);
+            res.send({ form });
+          });
+        }
+      });
+    } else {
+      console.log("if todays' form is requested, get it from s3");
+      let objectData = data.Body.toString('utf-8');
+      console.log(objectData)
+    }
   });
 });
 
