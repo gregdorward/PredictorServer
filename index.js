@@ -10,29 +10,21 @@ const AWS = require("aws-sdk");
 
 console.log(process.env.NODE_ENV);
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "https://gregdorward.github.io"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
 
-// if (process.env.NODE_ENV === "production") {
-//   app.use(
-//     cors({
-//       origin: "https://gregdorward.github.io",
-//     })
-//   );
-// } else {
-//   app.use(
-//     cors({
-//       origin: "http://localhost:3000",
-//     })
-//   );
-// }
-// app.options('*', cors()) // include before other routes
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    cors({
+      origin: "https://gregdorward.github.io",
+    })
+  );
+} else {
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+    })
+  );
+}
+app.options('*', cors()) // include before other routes
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
