@@ -365,7 +365,7 @@ app.get("/formtodaysFixtures", async (req, res) => {
   });
 });
 
-app.get("/formtomorrowFixtures", async (req, res) => {
+app.get("/formtomorrowsFixtures", async (req, res) => {
   let filePath = "allFormtomorrowsFixtures.json";
   let params = {
     Bucket: "predictorfiles",
