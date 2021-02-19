@@ -33,10 +33,6 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
-// const port = process.env.PORT || 5000;
-
-const apiKey = process.env.API_KEY;
-
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
 tomorrowsDate.setDate(new Date().getDate() + 1);
@@ -53,6 +49,10 @@ let [
   yesterdayMonth,
   yesterdayYear,
 ] = yesterdaysDate.toLocaleDateString("en-US").split("/");
+
+// const port = process.env.PORT || 5000;
+
+const apiKey = process.env.API_KEY;
 
 const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
@@ -241,125 +241,79 @@ app.post("/postPredictions10tomorrowsFixtures", (req, res) => {
   );
 });
 
-app.post("/allFormyesterdaysFixtures", (req, res) => {
-  fs.writeFile(
-    `allFormyesterdaysFixtures.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile(
-          "allFormyesterdaysFixtures.json",
-          "allFormyesterdaysFixtures.json"
-        );
-        res.sendStatus(200);
-      }
+app.post("/allFormyesterdaysFixtures", (req, res, next) => {
+  console.log("post request called");
+  let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
+
+  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+    if (err) {
+      res.sendStatus(500);
+      next(err);
+    } else {
+      uploadFile(fileName, fileName);
+      res.sendStatus(200);
     }
-  );
+  });
 });
 
-app.post("/allFormtodaysFixtures", (req, res) => {
-  fs.writeFile(
-    `allFormtodaysFixtures.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile("allFormtodaysFixtures.json", "allFormtodaysFixtures.json");
-        res.sendStatus(200);
-      }
+app.post("/allFormtodaysFixtures", (req, res, next) => {
+  console.log("post request called");
+  let fileName = `allForm${day}${month}${year}.json`;
+
+  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+    if (err) {
+      res.sendStatus(500);
+      next(err);
+    } else {
+      uploadFile(fileName, fileName);
+      res.sendStatus(200);
     }
-  );
+  });
 });
 
-app.post("/allFormtomorrowsFixtures", (req, res) => {
-  fs.writeFile(
-    `allFormtomorrowsFixtures.json`,
-    JSON.stringify(req.body),
-    function (err) {
-      if (err) {
-        res.sendStatus(500);
-        return console.log(err);
-      } else {
-        uploadFile(
-          "allFormtomorrowsFixtures.json",
-          "allFormtomorrowsFixtures.json"
-        );
-        res.sendStatus(200);
-      }
+app.post("/allFormtomorrowsFixtures", (req, res, next) => {
+  console.log("post request called");
+  let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
+
+  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+    if (err) {
+      res.sendStatus(500);
+      next(err);
+    } else {
+      uploadFile(fileName, fileName);
+      res.sendStatus(200);
     }
-  );
+  });
 });
 
-app.get("/formyesterdaysFixtures", async (req, res) => {
-  let filePath = "allFormyesterdaysFixtures.json";
+app.get("/formyesterdaysFixtures", async (req, res, next) => {
+  let filePath = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
   let params = {
     Bucket: "predictorfiles",
-    Key: "allFormyesterdaysFixtures.json",
+    Key: filePath,
   };
+
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
     if (err) {
       console.error(err);
       fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
         if (err) {
-          console.error(
-            `${filePath} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
           res.sendStatus(404);
+          next(err);
         } else {
           console.log(
             "returning yesterdays form from local storage - not found in s3"
           );
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
-            if (err) res.sendStatus(500);
-            const form = JSON.parse(data);
-            res.send(form);
-          });
-        }
-      });
-    } else {
-      console.log("sending s3 data for yesterdays form");
-      let objectData = data.Body.toString("utf-8");
-      res.send(objectData);
-    }
-  });
-});
-
-app.get("/formtodaysFixtures", async (req, res) => {
-  let filePath = "allFormtodaysFixtures.json";
-  let params = {
-    Bucket: "predictorfiles",
-    Key: "allFormtodaysFixtures.json",
-  };
-  // if todays' form is requested, get it from s3
-  s3.getObject(params, (err, data) => {
-    if (err) {
-      console.error(err);
-      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-        if (err) {
-          console.error(
-            `${filePath} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
-          res.sendStatus(404);
-        } else {
-          console.log(
-            "returning todays form from local storage - not found in s3"
-          );
-          // if it does exist in the local file system, fetch it from there and return it to the client
-          fs.readFile(filePath, function (err, data) {
-            if (err) res.sendStatus(500);
-            const form = JSON.parse(data);
-            res.send(form);
+            if (err) {
+              res.sendStatus(500);
+              next(err);
+            } else {
+              const form = JSON.parse(data);
+              res.send(form);
+            }
           });
         }
       });
@@ -371,48 +325,83 @@ app.get("/formtodaysFixtures", async (req, res) => {
   });
 });
 
-app.get("/formtomorrowsFixtures", async (req, res) => {
-  let filePath = "allFormtomorrowsFixtures.json";
+app.get("/formtodaysFixtures", async (req, res, next) => {
+  let filePath = `allForm${day}${month}${year}.json`;
   let params = {
     Bucket: "predictorfiles",
-    Key: "allFormtomorrowsFixtures.json",
+    Key: filePath,
   };
+
   // if todays' form is requested, get it from s3
   s3.getObject(params, (err, data) => {
     if (err) {
       console.error(err);
       fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
         if (err) {
-          console.error(
-            `${filePath} ${
-              err.code === "ENOENT" ? "does not exist" : "is read-only"
-            }`
-          );
           res.sendStatus(404);
+          next(err);
         } else {
           console.log(
-            "returning tomorrows form from local storage - not found in s3"
+            "returning todays form from local storage - not found in s3"
           );
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
-            if (err) res.sendStatus(500);
-            const form = JSON.parse(data);
-            res.send(form);
+            if (err) {
+              res.sendStatus(500);
+              next(err);
+            } else {
+              const form = JSON.parse(data);
+              res.send(form);
+            }
           });
         }
       });
     } else {
-      console.log("sending s3 data for tomorrows form");
+      console.log("sending s3 data for todays form");
       let objectData = data.Body.toString("utf-8");
       res.send(objectData);
     }
   });
 });
 
+app.get("/formtomorrowsFixtures", async (req, res, next) => {
+  let filePath = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
 
-
-
-
+  // if todays' form is requested, get it from s3
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+        if (err) {
+          res.sendStatus(404);
+          next(err);
+        } else {
+          console.log(
+            "returning tomorrows form from local storage - not found in s3"
+          );
+          // if it does exist in the local file system, fetch it from there and return it to the client
+          fs.readFile(filePath, function (err, data) {
+            if (err) {
+              res.sendStatus(500);
+              next(err);
+            } else {
+              const form = JSON.parse(data);
+              res.send(form);
+            }
+          });
+        }
+      });
+    } else {
+      console.log("sending s3 data for todays form");
+      let objectData = data.Body.toString("utf-8");
+      res.send(objectData);
+    }
+  });
+});
 
 app.get("/yesterdaysFixturesPredictions5", (req, res) => {
   let filePath = "fixedPredictions5yesterday.json";
@@ -439,7 +428,7 @@ app.get("/yesterdaysFixturesPredictions5", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -481,7 +470,7 @@ app.get("/yesterdaysFixturesPredictions6", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -497,7 +486,6 @@ app.get("/yesterdaysFixturesPredictions6", (req, res) => {
     }
   });
 });
-
 
 app.get("/yesterdaysFixturesPredictions10", (req, res) => {
   let filePath = "fixedPredictions10yesterday.json";
@@ -524,7 +512,7 @@ app.get("/yesterdaysFixturesPredictions10", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -566,7 +554,7 @@ app.get("/todaysFixturesPredictions5", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -608,7 +596,7 @@ app.get("/todaysFixturesPredictions6", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -650,7 +638,7 @@ app.get("/todaysFixturesPredictions10", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -692,7 +680,7 @@ app.get("/tomorrowsFixturesPredictions5", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -734,7 +722,7 @@ app.get("/tomorrowsFixturesPredictions6", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
@@ -776,7 +764,7 @@ app.get("/tomorrowsFixturesPredictions10", (req, res) => {
           // if it does exist in the local file system, fetch it from there and return it to the client
           fs.readFile(filePath, function (err, data) {
             if (err) {
-              console.error(err)
+              console.error(err);
               res.sendStatus(404);
             } else {
               const predictions = JSON.parse(data);
