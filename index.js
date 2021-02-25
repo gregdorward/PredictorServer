@@ -119,6 +119,119 @@ app.get("/yesterdaysFixtures", (req, res) => {
   });
 });
 
+let leagueId;
+app.get(`/league`, (req, res, next) => {
+  leagueId = req.query.id;
+  console.log("called");
+  let filePath = `league${leagueId}${day}${month}${year}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  // if todays' form is requested, get it from s3
+
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      res.sendStatus(404);
+      next(err);
+    } else {
+      console.log("league data from local storage - not found in s3");
+      // if it does exist in the local file system, fetch it from there and return it to the client
+      fs.readFile(filePath, function (err, data) {
+        if (err) {
+          res.sendStatus(500);
+          next(err);
+        } else {
+          const form = JSON.parse(data);
+          res.send(form);
+        }
+      });
+    }
+  });
+});
+
+// app.get(`/leagueData`, (req, res, next) => {
+//   let filePath = `leagueData${day}${month}${year}.json`;
+//   let params = {
+//     Bucket: "predictorfiles",
+//     Key: filePath,
+//   };
+//   s3.getObject(params, (err, data) => {
+//     if (err) {
+//       console.error(err);
+//       res.sendStatus(404);
+//       next(err);
+//     } else {
+//       console.log("sending s3 data for all league data");
+//       let objectData = data.Body.toString("utf-8");
+//       const leagueData = JSON.parse(objectData);
+//       console.log("leagueData from s3");
+//       res.send(leagueData);
+//     }
+//   });
+// });
+
+app.get(`/leagueData`, (req, res, next) => {
+  let filePath = `leagueData${day}${month}${year}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: filePath,
+  };
+  // if todays' form is requested, get it from s3
+
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    if (err) {
+      res.sendStatus(404);
+      next(err);
+    } else {
+      console.log("league data from local storage");
+      // if it does exist in the local file system, fetch it from there and return it to the client
+      fs.readFile(filePath, function (err, data) {
+        if (err) {
+          console.error(err);
+          res.sendStatus(500);
+          s3.getObject(params, (err, data) => {
+            if (err) {
+              console.error(err);
+              res.sendStatus(404);
+              next(err);
+            } else {
+              console.log("sending s3 data for all league data");
+              let objectData = data.Body.toString("utf-8");
+              const leagueData = JSON.parse(objectData);
+              console.log("leagueData from s3");
+              res.send(leagueData);
+            }
+          });
+        } else {
+          const form = JSON.parse(data);
+          res.send(form);
+        }
+      });
+    }
+  });
+});
+
+app.post(`/leagueData`, (req, res) => {
+  leagueId = req.query.id;
+  fs.writeFile(
+    `leagueData${day}${month}${year}.json`,
+    JSON.stringify(req.body),
+    function (err) {
+      if (err) {
+        res.sendStatus(500);
+        return console.log(err);
+      } else {
+        uploadFile(
+          `leagueData${day}${month}${year}.json`,
+          `leagueData${day}${month}${year}.json`
+        );
+        res.sendStatus(200);
+      }
+    }
+  );
+});
+
 app.post("/postPredictions5todaysFixtures", (req, res) => {
   fs.writeFile(
     `fixedPredictions5today.json`,
@@ -245,12 +358,20 @@ app.post("/allFormyesterdaysFixtures", (req, res, next) => {
   console.log("post request called");
   let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
 
-  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
-      res.sendStatus(500);
-      next(err);
+      console.error(err);
+      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+        if (err) {
+          res.sendStatus(500);
+          next(err);
+        } else {
+          uploadFile(fileName, fileName);
+          res.sendStatus(200);
+        }
+      });
     } else {
-      uploadFile(fileName, fileName);
+      console.log("file already exists in local storage");
       res.sendStatus(200);
     }
   });
@@ -260,12 +381,20 @@ app.post("/allFormtodaysFixtures", (req, res, next) => {
   console.log("post request called");
   let fileName = `allForm${day}${month}${year}.json`;
 
-  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
-      res.sendStatus(500);
-      next(err);
+      console.error(err);
+      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+        if (err) {
+          res.sendStatus(500);
+          next(err);
+        } else {
+          uploadFile(fileName, fileName);
+          res.sendStatus(200);
+        }
+      });
     } else {
-      uploadFile(fileName, fileName);
+      console.log("file already exists in local storage");
       res.sendStatus(200);
     }
   });
@@ -275,12 +404,20 @@ app.post("/allFormtomorrowsFixtures", (req, res, next) => {
   console.log("post request called");
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
 
-  fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
-      res.sendStatus(500);
-      next(err);
+      console.error(err);
+      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+        if (err) {
+          res.sendStatus(500);
+          next(err);
+        } else {
+          uploadFile(fileName, fileName);
+          res.sendStatus(200);
+        }
+      });
     } else {
-      uploadFile(fileName, fileName);
+      console.log("file already exists in local storage");
       res.sendStatus(200);
     }
   });
@@ -293,34 +430,34 @@ app.get("/formyesterdaysFixtures", async (req, res, next) => {
     Key: filePath,
   };
 
-  // if todays' form is requested, get it from s3
-  s3.getObject(params, (err, data) => {
+  // if yesterdays' form is requested, get it from s3
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
       console.error(err);
-      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      s3.getObject(params, (err, data) => {
         if (err) {
+          console.error(err);
           res.sendStatus(404);
           next(err);
         } else {
-          console.log(
-            "returning yesterdays form from local storage - not found in s3"
-          );
-          // if it does exist in the local file system, fetch it from there and return it to the client
-          fs.readFile(filePath, function (err, data) {
-            if (err) {
-              res.sendStatus(500);
-              next(err);
-            } else {
-              const form = JSON.parse(data);
-              res.send(form);
-            }
-          });
+          console.log("sending s3 data for all yesterdays form");
+          let objectData = data.Body.toString("utf-8");
+          const form = JSON.parse(objectData);
+          res.status(201).send(form)
+          // res.send(form);
         }
       });
     } else {
-      console.log("sending s3 data for todays form");
-      let objectData = data.Body.toString("utf-8");
-      res.send(objectData);
+      fs.readFile(filePath, function (err, data) {
+        if (err) {
+          console.error(err);
+          res.sendStatus(500);
+        } else {
+          const form = JSON.parse(data);
+          res.send(form);
+        }
+      });
+      console.log("returning data from local storage");
     }
   });
 });
@@ -333,33 +470,33 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
   };
 
   // if todays' form is requested, get it from s3
-  s3.getObject(params, (err, data) => {
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
       console.error(err);
-      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      s3.getObject(params, (err, data) => {
         if (err) {
+          console.error(err);
           res.sendStatus(404);
           next(err);
         } else {
-          console.log(
-            "returning todays form from local storage - not found in s3"
-          );
-          // if it does exist in the local file system, fetch it from there and return it to the client
-          fs.readFile(filePath, function (err, data) {
-            if (err) {
-              res.sendStatus(500);
-              next(err);
-            } else {
-              const form = JSON.parse(data);
-              res.send(form);
-            }
-          });
+          console.log("sending s3 data for all todays form");
+          let objectData = data.Body.toString("utf-8");
+          const form = JSON.parse(objectData);
+          res.status(201).send(form)
+          // res.send(form);
         }
       });
     } else {
-      console.log("sending s3 data for todays form");
-      let objectData = data.Body.toString("utf-8");
-      res.send(objectData);
+      fs.readFile(filePath, function (err, data) {
+        if (err) {
+          console.error(err);
+          res.sendStatus(500);
+        } else {
+          const form = JSON.parse(data);
+          res.send(form);
+        }
+      });
+      console.log("returning data from local storage");
     }
   });
 });
@@ -370,35 +507,33 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
     Bucket: "predictorfiles",
     Key: filePath,
   };
-
-  // if todays' form is requested, get it from s3
-  s3.getObject(params, (err, data) => {
+  fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
       console.error(err);
-      fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      s3.getObject(params, (err, data) => {
         if (err) {
+          console.error(err);
           res.sendStatus(404);
           next(err);
         } else {
-          console.log(
-            "returning tomorrows form from local storage - not found in s3"
-          );
-          // if it does exist in the local file system, fetch it from there and return it to the client
-          fs.readFile(filePath, function (err, data) {
-            if (err) {
-              res.sendStatus(500);
-              next(err);
-            } else {
-              const form = JSON.parse(data);
-              res.send(form);
-            }
-          });
+          console.log("sending s3 data for all tomorrows form");
+          let objectData = data.Body.toString("utf-8");
+          const form = JSON.parse(objectData);
+          res.status(201).send(form)
+          // res.send(form);
         }
       });
     } else {
-      console.log("sending s3 data for todays form");
-      let objectData = data.Body.toString("utf-8");
-      res.send(objectData);
+      fs.readFile(filePath, function (err, data) {
+        if (err) {
+          console.error(err);
+          res.sendStatus(500);
+        } else {
+          const form = JSON.parse(data);
+          res.send(form);
+        }
+      });
+      console.log("returning data from local storage");
     }
   });
 });
@@ -794,292 +929,292 @@ app.get("/tomorrowsFixturesPredictions10", (req, res) => {
 //     .catch((err) => console.log(err));
 // }
 
-const deleteYesterdaysForm = schedule.scheduleJob(
-  "45 59 23 * * *",
-  async function () {
-    var OLD_KEY = "allFormyesterdaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles";
+// const deleteYesterdaysForm = schedule.scheduleJob(
+//   "45 59 23 * * *",
+//   async function () {
+//     var OLD_KEY = "allFormyesterdaysFixtures.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Delete the old object
-    s3.deleteObject({
-      Bucket: BUCKET_NAME,
-      Key: OLD_KEY,
-    })
-      .promise()
+//     // Delete the old object
+//     s3.deleteObject({
+//       Bucket: BUCKET_NAME,
+//       Key: OLD_KEY,
+//     })
+//       .promise()
 
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTodaysForm = schedule.scheduleJob(
-  "00 00 00 * * *",
-  async function () {
-    var OLD_KEY = "allFormtodaysFixtures.json";
-    var NEW_KEY = "allFormyesterdaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTodaysForm = schedule.scheduleJob(
+//   "00 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "allFormtodaysFixtures.json";
+//     var NEW_KEY = "allFormyesterdaysFixtures.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTomorrowsForm = schedule.scheduleJob(
-  "10 00 00 * * *",
-  async function () {
-    var OLD_KEY = "allFormtomorrowsFixtures.json";
-    var NEW_KEY = "allFormtodaysFixtures.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTomorrowsForm = schedule.scheduleJob(
+//   "10 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "allFormtomorrowsFixtures.json";
+//     var NEW_KEY = "allFormtodaysFixtures.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const deleteYesterdays5Predictions = schedule.scheduleJob(
-  "20 00 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions5yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
-    // Delete the old object
-    s3.deleteObject({
-      Bucket: BUCKET_NAME,
-      Key: OLD_KEY,
-    })
-      .promise()
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+// const deleteYesterdays5Predictions = schedule.scheduleJob(
+//   "20 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions5yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
+//     // Delete the old object
+//     s3.deleteObject({
+//       Bucket: BUCKET_NAME,
+//       Key: OLD_KEY,
+//     })
+//       .promise()
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const deleteYesterdays6Predictions = schedule.scheduleJob(
-  "30 00 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions6yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
-    // Delete the old object
-    s3.deleteObject({
-      Bucket: BUCKET_NAME,
-      Key: OLD_KEY,
-    })
-      .promise()
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+// const deleteYesterdays6Predictions = schedule.scheduleJob(
+//   "30 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions6yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
+//     // Delete the old object
+//     s3.deleteObject({
+//       Bucket: BUCKET_NAME,
+//       Key: OLD_KEY,
+//     })
+//       .promise()
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const deleteYesterdays10Predictions = schedule.scheduleJob(
-  "40 00 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions10yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
-    // Delete the old object
-    s3.deleteObject({
-      Bucket: BUCKET_NAME,
-      Key: OLD_KEY,
-    })
-      .promise()
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+// const deleteYesterdays10Predictions = schedule.scheduleJob(
+//   "40 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions10yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
+//     // Delete the old object
+//     s3.deleteObject({
+//       Bucket: BUCKET_NAME,
+//       Key: OLD_KEY,
+//     })
+//       .promise()
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTodays5Predictions = schedule.scheduleJob(
-  "50 00 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions5today.json";
-    var NEW_KEY = "fixedPredictions5yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTodays5Predictions = schedule.scheduleJob(
+//   "50 00 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions5today.json";
+//     var NEW_KEY = "fixedPredictions5yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTodays6Predictions = schedule.scheduleJob(
-  "00 01 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions6today.json";
-    var NEW_KEY = "fixedPredictions6yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTodays6Predictions = schedule.scheduleJob(
+//   "00 01 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions6today.json";
+//     var NEW_KEY = "fixedPredictions6yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTodays10Predictions = schedule.scheduleJob(
-  "10 01 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions10today.json";
-    var NEW_KEY = "fixedPredictions10yesterday.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTodays10Predictions = schedule.scheduleJob(
+//   "10 01 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions10today.json";
+//     var NEW_KEY = "fixedPredictions10yesterday.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTomorrows5Predictions = schedule.scheduleJob(
-  "20 01 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions5tomorrow.json";
-    var NEW_KEY = "fixedPredictions5today.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTomorrows5Predictions = schedule.scheduleJob(
+//   "20 01 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions5tomorrow.json";
+//     var NEW_KEY = "fixedPredictions5today.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTomorrows6Predictions = schedule.scheduleJob(
-  "30 01 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions6tomorrow.json";
-    var NEW_KEY = "fixedPredictions6today.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTomorrows6Predictions = schedule.scheduleJob(
+//   "30 01 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions6tomorrow.json";
+//     var NEW_KEY = "fixedPredictions6today.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
 
-const renameTomorrows10Predictions = schedule.scheduleJob(
-  "40 01 00 * * *",
-  async function () {
-    var OLD_KEY = "fixedPredictions10tomorrow.json";
-    var NEW_KEY = "fixedPredictions10today.json";
-    var BUCKET_NAME = "predictorfiles";
+// const renameTomorrows10Predictions = schedule.scheduleJob(
+//   "40 01 00 * * *",
+//   async function () {
+//     var OLD_KEY = "fixedPredictions10tomorrow.json";
+//     var NEW_KEY = "fixedPredictions10today.json";
+//     var BUCKET_NAME = "predictorfiles";
 
-    // Copy the object to a new location
-    s3.copyObject({
-      Bucket: BUCKET_NAME,
-      CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
-      Key: NEW_KEY,
-    })
-      .promise()
-      .then(() =>
-        // Delete the old object
-        s3
-          .deleteObject({
-            Bucket: BUCKET_NAME,
-            Key: OLD_KEY,
-          })
-          .promise()
-      )
-      // Error handling is left up to reader
-      .catch((e) => console.error(e));
-  }
-);
+//     // Copy the object to a new location
+//     s3.copyObject({
+//       Bucket: BUCKET_NAME,
+//       CopySource: `${BUCKET_NAME}/${OLD_KEY}`,
+//       Key: NEW_KEY,
+//     })
+//       .promise()
+//       .then(() =>
+//         // Delete the old object
+//         s3
+//           .deleteObject({
+//             Bucket: BUCKET_NAME,
+//             Key: OLD_KEY,
+//           })
+//           .promise()
+//       )
+//       // Error handling is left up to reader
+//       .catch((e) => console.error(e));
+//   }
+// );
