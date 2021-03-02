@@ -37,7 +37,7 @@ let [
 
 const apiKey = process.env.API_KEY;
 
-const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
+const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-2-27`;
 const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
 const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
 
@@ -174,7 +174,7 @@ app.post(`/leagueData`, (req, res) => {
 
 app.post("/allFormyesterdaysFixtures", (req, res, next) => {
   console.log("post request called");
-  let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
+  let fileName = `allForm227${yesterdayYear}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
@@ -271,7 +271,7 @@ app.post("/allFormtomorrowsFixtures", (req, res, next) => {
 });
 
 app.get("/formyesterdaysFixtures", async (req, res, next) => {
-  let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
+  let fileName = `allForm227${yesterdayYear}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
