@@ -26,7 +26,7 @@ let [
 ] = tomorrowsDate.toLocaleDateString("en-US").split("/");
 
 let yesterdaysDate = new Date();
-yesterdaysDate.setDate(new Date().getDate() - 1);
+yesterdaysDate.setDate(new Date().getDate() - 5);
 let [
   yesterdayDay,
   yesterdayMonth,
@@ -126,8 +126,81 @@ app.get(`/leagueData`, (req, res, next) => {
   });
 });
 
+
+
+
+app.post(`/leagues/:date`, (req, res) => {
+  let date = req.params
+  let fileName = `leagues${date.date}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+
+  s3.headObject(params, function (err, data) {
+    if (err) {
+      console.error(err);
+      fs.writeFile(
+        fileName,
+        JSON.stringify(req.body),
+        function (err) {
+          if (err) {
+            res.sendStatus(500);
+            return console.log(err);
+          } else {
+            uploadFile(
+              fileName,
+              fileName
+            );
+            res.sendStatus(200);
+          }
+        }
+      );
+    } else {
+      console.log("league table exists in s3, writing to local storage");
+      fs.writeFile(
+        fileName,
+        JSON.stringify(req.body),
+        function (err) {
+          if (err) {
+            res.sendStatus(500);
+            return console.log(err);
+          } else {
+            res.sendStatus(200);
+          }
+        }
+      );
+    }
+  });
+});
+
+
+app.get(`/leagues/:date`, (req, res, next) => {
+  let date = req.params
+  console.log(date)
+  let fileName = `leagues${date.date}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  // if todays' form is requested, get it from s3
+
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(404);
+      next(err);
+    } else {
+      console.log("sending s3 data for league tables");
+      let objectData = data.Body.toString("utf-8");
+      const leagues = JSON.parse(objectData);
+      console.log("leagueData from s3");
+      res.send(leagues);
+    }
+  });
+});
+
 app.post(`/leagueData`, (req, res) => {
-  leagueId = req.query.id;
   let fileName = `leagueData${day}${month}${year}.json`;
   let params = {
     Bucket: "predictorfiles",
