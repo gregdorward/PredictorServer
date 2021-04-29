@@ -174,10 +174,42 @@ app.post(`/leagues/:date`, (req, res) => {
   });
 });
 
+async function getLeague(id){
+  let league = await fetch(
+    `https://api.footystats.org/league-tables?key=${apiKey}&season_id=${id}`
+  );
+  let responseBody = league.json()
+  return responseBody
+}
+
+app.get(`/tables/:leagueId/:date`, (req, res, next) => {
+  let parameters = req.params
+  let fileName = `${day}${month}${year}${parameters.leagueId}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  // if todays' form is requested, get it from s3
+
+  s3.getObject(params, async (err, data) => {
+    if (err) {
+      let league = await getLeague(parameters.leagueId)
+      res.send(league);
+      // next(err);
+    } else {
+      console.log("sending s3 data for league tables");
+      let objectData = data.Body.toString("utf-8");
+      const leagues = JSON.parse(objectData);
+      console.log("leagueData from s3");
+      res.send(leagues);
+    }
+  });
+});
+
 
 app.get(`/leagues/:date`, (req, res, next) => {
   let date = req.params
-  console.log(date)
+  console.log(`DATE ${date.date}`)
   let fileName = `leagues${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
@@ -200,6 +232,79 @@ app.get(`/leagues/:date`, (req, res, next) => {
   });
 });
 
+async function getLeagueList(){
+  let list = await fetch(`https://api.footystats.org/league-list?key=${apiKey}&chosen_leagues_only=true`)
+  let responseBody = list.json()
+  return responseBody
+}
+
+app.get(`/leagueList`, (req, res, next) => {
+  let fileName = `leagueList.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  // if todays' form is requested, get it from s3
+
+  s3.getObject(params, async (err, data) => {
+    if (err) {
+      let leagueList = await getLeagueList()
+      res.send(leagueList);
+      // next(err);
+    } else {
+      let objectData = data.Body.toString("utf-8");
+      const leagues = JSON.parse(objectData);
+      res.send(leagues);
+    }
+  });
+});
+
+
+async function getMatches(date){
+  let matches = await fetch(`https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`)
+  let responseBody = matches.json()
+  return responseBody
+}
+
+app.get(`/matches/:date`, async (req, res, next) => {
+  let date = req.params
+  let fileName = `matches${date.date}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  s3.getObject(params, async (err, data) => {
+    if (err) {
+      let matchList = await getMatches(date.date)
+      res.send(matchList);
+    } else {
+      let objectData = data.Body.toString("utf-8");
+      const games = JSON.parse(objectData);
+      res.send(games);
+    }
+  });
+});
+
+
+
+async function getForm(team){
+  let matches = await fetch(`https://api.footystats.org/lastx?key=${apiKey}&team_id=${team}`)
+  let responseBody = matches.json()
+  return responseBody
+}
+app.get(`/form/:team`, async(req, res, next) => {
+
+  let team = req.params
+  let fileName = `form${team.team}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  let form = await getForm(team.team)
+  res.send(form);
+});
+
+
 app.post(`/leagueData`, (req, res) => {
   let fileName = `leagueData${day}${month}${year}.json`;
   let params = {
@@ -216,7 +321,7 @@ app.post(`/leagueData`, (req, res) => {
         function (err) {
           if (err) {
             res.sendStatus(500);
-            return console.log(err);
+            console.error(err);
           } else {
             uploadFile(
               `leagueData${day}${month}${year}.json`,
@@ -399,7 +504,7 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
     Bucket: "predictorfiles",
     Key: fileName,
   };
-
+  console.log("Attempting to get all form")
   // if todays' form is requested, get it from s3
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
