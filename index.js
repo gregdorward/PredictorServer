@@ -546,21 +546,28 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
 
 app.get("/formtomorrowsFixtures", async (req, res, next) => {
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
-  let params = {
+  var d = new Date();
+  var n = d.getHours();  let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
+  console.log(fileName)
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
+    console.log(err)
+    if (err || n < 2) {
+      console.log(n)
       console.error(err);
 
       s3.headObject(params, function (err, data) {
+
         if (err) {
           console.error(err);
           res.sendStatus(500);
         } else {
           s3.getObject(params, (err, data) => {
+
             if (err) {
+
               console.error(err);
               res.sendStatus(404);
               next(err);
@@ -576,6 +583,7 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
       });
     } else {
       fs.readFile(fileName, function (err, data) {
+
         if (err) {
           console.error(err);
           res.sendStatus(500);
@@ -584,7 +592,7 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
           res.send(form);
         }
       });
-      console.log("returning data from local storage");
+      console.log("returning form data from local storage");
     }
   });
 });
