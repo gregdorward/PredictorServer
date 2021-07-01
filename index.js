@@ -78,6 +78,22 @@ app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>");
 });
 
+async function getTeamStats(identifier){
+  let match = await fetch(
+    `https://api.football-data-api.com/match?key=${apiKey}&match_id=${identifier}`
+  );
+  let responseBody = match.json()
+  return responseBody
+}
+
+app.get("/match/:id", async (req, res) => {
+  let id = req.params
+  let match = await getTeamStats(id.id)
+  res.send(match);
+})
+
+
+
 app.get("/todaysFixtures", (req, res) => {
   fs.readFile("today.json", function (err, data) {
     if (err) res.sendStatus(404);
