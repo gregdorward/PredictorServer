@@ -33,14 +33,20 @@ let [
   yesterdayYear,
 ] = yesterdaysDate.toLocaleDateString("en-US").split("/");
 
-let dateObj = new Date()
-dateObj.setDate(dateObj.getDate() - (9-dateObj.getDay()))
-console.log(dateObj)
+var d = new Date();
+
+// set to Monday of this week
+d.setDate(d.getDate() - (d.getDay() + 6) % 7);
+
+// set to Saturday just gone
+d.setDate(d.getDate() - 2);
+
+
 let [
   saturdayDay,
   saturdayMonth,
   saturdayYear,
-] = dateObj.toLocaleDateString("en-US").split("/");
+] = d.toLocaleDateString("en-US").split("/");
 
 // const port = process.env.PORT || 5000;
 
