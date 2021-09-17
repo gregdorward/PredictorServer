@@ -41,7 +41,6 @@ d.setDate(d.getDate() - (d.getDay() + 6) % 7);
 // set to Saturday just gone
 d.setDate(d.getDate() - 2);
 
-
 let [
   saturdayDay,
   saturdayMonth,
