@@ -819,19 +819,17 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
 });
 
 const restartDynos = schedule.scheduleJob(
-  "00 01 00 * * *",
+  "01 * * * * *",
   async function () {
     console.log("TRIGGERED")
     await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
         headers: {
         Accept: "application/vnd.heroku+json; version=3",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `${process.env.AUTH_TOKEN}`
       },
     method: "DELETE"
 })
   }
 );
 
-const job = schedule.scheduleJob('01 * * * *', function(){
-  console.log('Logging...');
-});
