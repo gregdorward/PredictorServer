@@ -826,7 +826,7 @@ const restartDynos = schedule.scheduleJob(
         headers: {
         Accept: "application/vnd.heroku+json; version=3",
         "Content-Type": "application/json",
-        Authorization: `${process.env.AUTH_TOKEN}`
+        Authorization: "b7e99bfd-0927-416f-9204-43d8aed6106a"
       },
     method: "DELETE"
 })
