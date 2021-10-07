@@ -822,7 +822,7 @@ const restartDynos = schedule.scheduleJob(
   "01 * * * * *",
   async function () {
     console.log("TRIGGERED")
-    await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
+   let response = await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
         headers: {
         Accept: "application/vnd.heroku+json; version=3",
         "Content-Type": "application/json",
@@ -830,6 +830,7 @@ const restartDynos = schedule.scheduleJob(
       },
     method: "DELETE"
 })
+console.log(response.json)
   }
 );
 
