@@ -818,19 +818,19 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
   });
 });
 
-const restartDynos = schedule.scheduleJob(
-  "01 * * * * *",
-  async function () {
-    console.log("TRIGGERED")
-   let response = await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
-        headers: {
-        Accept: "application/vnd.heroku+json; version=3",
-        "Content-Type": "application/json",
-        Authorization: "b7e99bfd-0927-416f-9204-43d8aed6106a"
-      },
-    method: "DELETE"
-})
-console.log(response.json)
-  }
-);
+// const restartDynos = schedule.scheduleJob(
+//   "01 * * * * *",
+//   async function () {
+//     console.log("TRIGGERED")
+//    let response = await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
+//         headers: {
+//         Accept: "application/vnd.heroku+json; version=3",
+//         "Content-Type": "application/json",
+//         Authorization: "b7e99bfd-0927-416f-9204-43d8aed6106a"
+//       },
+//     method: "DELETE"
+// })
+// console.log
+//   }
+// );
 
