@@ -7,9 +7,11 @@ const fetch = require("node-fetch");
 var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
+const nocache = require("nocache");
 
 var app = express();
 app.use(cors());
+app.use(nocache());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(__dirname, "public")));
