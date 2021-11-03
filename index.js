@@ -21,49 +21,41 @@ app.use(express.urlencoded({ limit: "50mb" }));
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
 tomorrowsDate.setDate(new Date().getDate() + 1);
-let [
-  tomorrowDay,
-  tomorrowMonth,
-  tomorrowYear,
-] = tomorrowsDate.toLocaleDateString("en-US").split("/");
+let [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
+  .toLocaleDateString("en-US")
+  .split("/");
 
 let yesterdaysDate = new Date();
 yesterdaysDate.setDate(new Date().getDate() - 1);
-let [
-  yesterdayDay,
-  yesterdayMonth,
-  yesterdayYear,
-] = yesterdaysDate.toLocaleDateString("en-US").split("/");
+let [yesterdayDay, yesterdayMonth, yesterdayYear] = yesterdaysDate
+  .toLocaleDateString("en-US")
+  .split("/");
 
 var d = new Date();
 
 // set to Monday of this week
-d.setDate(d.getDate() - (d.getDay() + 6) % 7);
+d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
 
 // set to Saturday just gone
 d.setDate(d.getDate() - 2);
 
-let [
-  saturdayDay,
-  saturdayMonth,
-  saturdayYear,
-] = d.toLocaleDateString("en-US").split("/");
-
+let [saturdayDay, saturdayMonth, saturdayYear] = d
+  .toLocaleDateString("en-US")
+  .split("/");
 
 var historicDate = new Date();
 
 // set to Monday of this week
-historicDate.setDate(historicDate.getDate() - (historicDate.getDay() + 6) % 7);
+historicDate.setDate(
+  historicDate.getDate() - ((historicDate.getDay() + 6) % 7)
+);
 
 // set to Saturday prior to last
 historicDate.setDate(historicDate.getDate() - 9);
 
-
-let [
-  historicDay,
-  historicMonth,
-  historicYear,
-] = historicDate.toLocaleDateString("en-US").split("/");
+let [historicDay, historicMonth, historicYear] = historicDate
+  .toLocaleDateString("en-US")
+  .split("/");
 
 // const port = process.env.PORT || 5000;
 
@@ -112,21 +104,19 @@ app.get("/", function (req, res) {
   res.send("<h1>Hello World!</h1>");
 });
 
-async function getTeamStats(identifier){
+async function getTeamStats(identifier) {
   let match = await fetch(
     `https://api.football-data-api.com/match?key=${apiKey}&match_id=${identifier}`
   );
-  let responseBody = match.json()
-  return responseBody
+  let responseBody = match.json();
+  return responseBody;
 }
 
 app.get("/match/:id", async (req, res) => {
-  let id = req.params
-  let match = await getTeamStats(id.id)
+  let id = req.params;
+  let match = await getTeamStats(id.id);
   res.send(match);
-})
-
-
+});
 
 app.get("/todaysFixtures", (req, res) => {
   fs.readFile("today.json", function (err, data) {
@@ -152,7 +142,6 @@ app.get("/yesterdaysFixtures", (req, res) => {
   });
 });
 
-
 app.get(`/leagueData`, (req, res, next) => {
   let fileName = `leagueData${day}${month}${year}.json`;
   let params = {
@@ -176,66 +165,52 @@ app.get(`/leagueData`, (req, res, next) => {
   });
 });
 
-
-
-
 app.post(`/leagues/:date`, (req, res) => {
-  let date = req.params
+  let date = req.params;
   let fileName = `leagues${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
 
-  console.log("attempting post req")
+  console.log("attempting post req");
 
   s3.headObject(params, function (err, data) {
     if (err) {
       console.error(err);
-      fs.writeFile(
-        fileName,
-        JSON.stringify(req.body),
-        function (err) {
-          if (err) {
-            res.sendStatus(500);
-            return console.log(err);
-          } else {
-            uploadFile(
-              fileName,
-              fileName
-            );
-            res.sendStatus(200);
-          }
+      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return console.log(err);
+        } else {
+          uploadFile(fileName, fileName);
+          res.sendStatus(200);
         }
-      );
+      });
     } else {
       console.log("league table exists in s3, writing to local storage");
-      fs.writeFile(
-        fileName,
-        JSON.stringify(req.body),
-        function (err) {
-          if (err) {
-            res.sendStatus(500);
-            return console.log(err);
-          } else {
-            res.sendStatus(200);
-          }
+      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return console.log(err);
+        } else {
+          res.sendStatus(200);
         }
-      );
+      });
     }
   });
 });
 
-async function getLeague(id){
+async function getLeague(id) {
   let league = await fetch(
     `https://api.footystats.org/league-tables?key=${apiKey}&season_id=${id}`
   );
-  let responseBody = league.json()
-  return responseBody
+  let responseBody = league.json();
+  return responseBody;
 }
 
 app.get(`/tables/:leagueId/:date`, (req, res, next) => {
-  let parameters = req.params
+  let parameters = req.params;
   let fileName = `${day}${month}${year}${parameters.leagueId}.json`;
   let params = {
     Bucket: "predictorfiles",
@@ -245,7 +220,7 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
 
   s3.getObject(params, async (err, data) => {
     if (err) {
-      let league = await getLeague(parameters.leagueId)
+      let league = await getLeague(parameters.leagueId);
       res.send(league);
       // next(err);
     } else {
@@ -258,10 +233,9 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
   });
 });
 
-
 app.get(`/leagues/:date`, (req, res, next) => {
-  let date = req.params
-  console.log(`DATE ${date.date}`)
+  let date = req.params;
+  console.log(`DATE ${date.date}`);
   let fileName = `leagues${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
@@ -271,7 +245,7 @@ app.get(`/leagues/:date`, (req, res, next) => {
   s3.getObject(params, (err, data) => {
     if (err) {
       console.error(err);
-      console.log(data)
+      console.log(data);
       res.sendStatus(404);
       next(err);
     } else {
@@ -284,10 +258,12 @@ app.get(`/leagues/:date`, (req, res, next) => {
   });
 });
 
-async function getLeagueList(){
-  let list = await fetch(`https://api.footystats.org/league-list?key=${apiKey}&chosen_leagues_only=true`)
-  let responseBody = list.json()
-  return responseBody
+async function getLeagueList() {
+  let list = await fetch(
+    `https://api.footystats.org/league-list?key=${apiKey}&chosen_leagues_only=true`
+  );
+  let responseBody = list.json();
+  return responseBody;
 }
 
 app.get(`/leagueList`, (req, res, next) => {
@@ -300,7 +276,7 @@ app.get(`/leagueList`, (req, res, next) => {
 
   s3.getObject(params, async (err, data) => {
     if (err) {
-      let leagueList = await getLeagueList()
+      let leagueList = await getLeagueList();
       res.send(leagueList);
       // next(err);
     } else {
@@ -311,25 +287,26 @@ app.get(`/leagueList`, (req, res, next) => {
   });
 });
 
-
-async function getMatches(date){
-  let matches = await fetch(`https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`)
-  let responseBody = matches.json()
-  console.log(responseBody)
-  return responseBody
+async function getMatches(date) {
+  let matches = await fetch(
+    `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
+  );
+  let responseBody = matches.json();
+  console.log(responseBody);
+  return responseBody;
 }
 
 app.get(`/matches/:date`, async (req, res, next) => {
-  let date = req.params
+  let date = req.params;
   let fileName = `matches${date.date}.json`;
-  console.log(date.date)
+  console.log(date.date);
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
   s3.getObject(params, async (err, data) => {
     if (err) {
-      let matchList = await getMatches(date.date)
+      let matchList = await getMatches(date.date);
       res.send(matchList);
     } else {
       let objectData = data.Body.toString("utf-8");
@@ -339,25 +316,23 @@ app.get(`/matches/:date`, async (req, res, next) => {
   });
 });
 
-
-
-async function getForm(team){
-  let matches = await fetch(`https://api.footystats.org/lastx?key=${apiKey}&team_id=${team}`)
-  let responseBody = matches.json()
-  return responseBody
+async function getForm(team) {
+  let matches = await fetch(
+    `https://api.footystats.org/lastx?key=${apiKey}&team_id=${team}`
+  );
+  let responseBody = matches.json();
+  return responseBody;
 }
-app.get(`/form/:team`, async(req, res, next) => {
-
-  let team = req.params
+app.get(`/form/:team`, async (req, res, next) => {
+  let team = req.params;
   let fileName = `form${team.team}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
-  let form = await getForm(team.team)
+  let form = await getForm(team.team);
   res.send(form);
 });
-
 
 app.post(`/leagueData`, (req, res) => {
   let fileName = `leagueData${day}${month}${year}.json`;
@@ -435,7 +410,6 @@ app.post("/allFormhistoric", (req, res, next) => {
   });
 });
 
-
 app.post("/allFormlastSaturday", (req, res, next) => {
   console.log("post request called");
   let fileName = `allForm${saturdayDay}${saturdayMonth}${saturdayYear}.json`;
@@ -467,7 +441,6 @@ app.post("/allFormlastSaturday", (req, res, next) => {
     }
   });
 });
-
 
 app.post("/allFormyesterdaysFixtures", (req, res, next) => {
   console.log("post request called");
@@ -574,7 +547,7 @@ app.get("/formhistoric", async (req, res, next) => {
     Key: fileName,
   };
 
-  console.log("TRIGGERED")
+  console.log("TRIGGERED");
 
   // if previous saturdays' form is requested, get it from s3
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
@@ -618,7 +591,6 @@ app.get("/formhistoric", async (req, res, next) => {
     }
   });
 });
-
 
 app.get("/formlastSaturday", async (req, res, next) => {
   let fileName = `allForm${saturdayDay}${saturdayMonth}${saturdayYear}.json`;
@@ -669,7 +641,6 @@ app.get("/formlastSaturday", async (req, res, next) => {
     }
   });
 });
-
 
 app.get("/formyesterdaysFixtures", async (req, res, next) => {
   let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
@@ -727,7 +698,7 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
     Bucket: "predictorfiles",
     Key: fileName,
   };
-  console.log("Attempting to get all form")
+  console.log("Attempting to get all form");
   // if todays' form is requested, get it from s3
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
@@ -770,27 +741,25 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
 app.get("/formtomorrowsFixtures", async (req, res, next) => {
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
   var d = new Date();
-  var n = d.getHours();  let params = {
+  var n = d.getHours();
+  let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
-  console.log(fileName)
+  console.log(fileName);
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    console.log(err)
+    console.log(err);
     if (err || n < 2) {
-      console.log(n)
+      console.log(n);
       console.error(err);
 
       s3.headObject(params, function (err, data) {
-
         if (err) {
           console.error(err);
           res.sendStatus(500);
         } else {
           s3.getObject(params, (err, data) => {
-
             if (err) {
-
               console.error(err);
               res.sendStatus(404);
               next(err);
@@ -806,7 +775,6 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
       });
     } else {
       fs.readFile(fileName, function (err, data) {
-
         if (err) {
           console.error(err);
           res.sendStatus(500);
@@ -820,20 +788,17 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
   });
 });
 
-const restartDynos = schedule.scheduleJob(
-  "01 00 00 * * *",
-  async function () {
-    console.log("TRIGGERED")
-    console.log(process.env.AUTH_TOKEN)
-   let response = await fetch("https://api.heroku.com/apps/pacific-depths-00420/dynos", {
-        headers: {
+const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
+  console.log("TRIGGERED");
+  let response = await fetch(
+    "https://api.heroku.com/apps/pacific-depths-00420/dynos",
+    {
+      headers: {
         Accept: "application/vnd.heroku+json; version=3",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.AUTH_TOKEN}`
+        Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
       },
-    method: "DELETE"
-})
-console.log
-  }
-);
-
+      method: "DELETE",
+    }
+  );
+});
