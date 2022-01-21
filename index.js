@@ -258,6 +258,7 @@ app.get(`/leagues/:date`, (req, res, next) => {
   });
 });
 
+
 async function getLeagueList() {
   let list = await fetch(
     `https://api.footystats.org/league-list?key=${apiKey}&chosen_leagues_only=true`
