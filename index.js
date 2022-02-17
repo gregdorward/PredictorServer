@@ -20,7 +20,7 @@ app.use(express.urlencoded({ limit: "50mb" }));
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
-tomorrowsDate.setDate(new Date().getDate() + 1);
+tomorrowsDate.setDate(new Date().getDate() - 27);
 let [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
   .toLocaleDateString("en-US")
   .split("/");
@@ -232,6 +232,78 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
     }
   });
 });
+
+
+
+
+// app.post(`/leagueStats/:date`, (req, res) => {
+//   let date = req.params;
+//   let fileName = `leagueStats${date.date}.json`;
+//   let params = {
+//     Bucket: "predictorfiles",
+//     Key: fileName,
+//   };
+
+//   console.log("attempting post req");
+
+//   s3.headObject(params, function (err, data) {
+//     if (err) {
+//       console.error(err);
+//       fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+//         if (err) {
+//           res.sendStatus(500);
+//           return console.log(err);
+//         } else {
+//           uploadFile(fileName, fileName);
+//           res.sendStatus(200);
+//         }
+//       });
+//     } else {
+//       console.log("league stats exist in s3, writing to local storage");
+//       fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
+//         if (err) {
+//           res.sendStatus(500);
+//           return console.log(err);
+//         } else {
+//           res.sendStatus(200);
+//         }
+//       });
+//     }
+//   });
+// });
+
+
+async function getLeagueStats(id) {
+  let league = await fetch(
+    `https://api.football-data-api.com/league-season?key=${apiKey}&season_id=${id}`
+  );
+  let responseBody = league.json();
+  return responseBody;
+}
+
+app.get(`/leagueStats/:leagueId`, (req, res, next) => {
+  let parameters = req.params;
+  let fileName = `${day}${month}${year}Stats${parameters.leagueId}.json`;
+  let params = {
+    Bucket: "predictorfiles",
+    Key: fileName,
+  };
+  s3.getObject(params, async (err, data) => {
+    if (err) {
+      let league = await getLeagueStats(parameters.leagueId);
+      res.send(league);
+      // next(err);
+    } else {
+      console.log("sending s3 data for league stats");
+      let objectData = data.Body.toString("utf-8");
+      const leagueStats = JSON.parse(objectData);
+      console.log("leagueStats from s3");
+      res.send(leagueStats);
+    }
+  });
+});
+
+
 
 app.get(`/leagues/:date`, (req, res, next) => {
   let date = req.params;
