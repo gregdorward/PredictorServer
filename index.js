@@ -20,7 +20,7 @@ app.use(express.urlencoded({ limit: "50mb" }));
 
 const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
 let tomorrowsDate = new Date();
-tomorrowsDate.setDate(new Date().getDate() - 27);
+tomorrowsDate.setDate(new Date().getDate() + 1);
 let [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
   .toLocaleDateString("en-US")
   .split("/");
