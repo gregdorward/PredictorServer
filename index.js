@@ -861,6 +861,21 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
   });
 });
 
+async function getO25() {
+  let teams = await fetch(
+    `https://api.football-data-api.com/stats-data-over25?key=${apiKey}
+    `
+  );
+  let responseBody = teams.json();
+  return responseBody;
+}
+
+app.get("/over25", async (req, res, next) => {
+      let teams = await getO25();
+      res.send(teams);
+});
+
+
 const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
   console.log("TRIGGERED");
   let response = await fetch(
