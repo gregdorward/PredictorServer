@@ -876,6 +876,20 @@ app.get("/over25", async (req, res, next) => {
 });
 
 
+async function getU25() {
+  let teams = await fetch(
+    `https://api.football-data-api.com/stats-data-under25?key=${apiKey}
+    `
+  );
+  let responseBody = teams.json();
+  return responseBody;
+}
+
+app.get("/under25", async (req, res, next) => {
+      let teams = await getU25();
+      res.send(teams);
+});
+
 const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
   console.log("TRIGGERED");
   let response = await fetch(
