@@ -8,7 +8,6 @@ var schedule = require("node-schedule");
 var bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 const nocache = require("nocache");
-
 var app = express();
 app.use(cors());
 app.use(nocache());
@@ -18,17 +17,19 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
-const [day, month, year] = new Date().toLocaleDateString("en-US").split("/");
+const [day, month, year] = new Date()
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+  .split("/");
 let tomorrowsDate = new Date();
 tomorrowsDate.setDate(new Date().getDate() + 1);
 let [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
-  .toLocaleDateString("en-US")
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
 
 let yesterdaysDate = new Date();
 yesterdaysDate.setDate(new Date().getDate() - 1);
 let [yesterdayDay, yesterdayMonth, yesterdayYear] = yesterdaysDate
-  .toLocaleDateString("en-US")
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
 
 var d = new Date();
@@ -40,7 +41,7 @@ d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
 d.setDate(d.getDate() - 2);
 
 let [saturdayDay, saturdayMonth, saturdayYear] = d
-  .toLocaleDateString("en-US")
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
 
 var historicDate = new Date();
@@ -54,7 +55,7 @@ historicDate.setDate(
 historicDate.setDate(historicDate.getDate() - 9);
 
 let [historicDay, historicMonth, historicYear] = historicDate
-  .toLocaleDateString("en-US")
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
 
 // const port = process.env.PORT || 5000;
@@ -233,9 +234,6 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
   });
 });
 
-
-
-
 // app.post(`/leagueStats/:date`, (req, res) => {
 //   let date = req.params;
 //   let fileName = `leagueStats${date.date}.json`;
@@ -272,7 +270,6 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
 //   });
 // });
 
-
 async function getLeagueStats(id) {
   let league = await fetch(
     `https://api.football-data-api.com/league-season?key=${apiKey}&season_id=${id}`
@@ -303,8 +300,6 @@ app.get(`/leagueStats/:leagueId`, (req, res, next) => {
   });
 });
 
-
-
 app.get(`/leagues/:date`, (req, res, next) => {
   let date = req.params;
   console.log(`DATE ${date.date}`);
@@ -317,7 +312,6 @@ app.get(`/leagues/:date`, (req, res, next) => {
   s3.getObject(params, (err, data) => {
     if (err) {
       console.error(err);
-      console.log(data);
       res.sendStatus(404);
       next(err);
     } else {
@@ -329,7 +323,6 @@ app.get(`/leagues/:date`, (req, res, next) => {
     }
   });
 });
-
 
 async function getLeagueList() {
   let list = await fetch(
@@ -364,8 +357,9 @@ async function getMatches(date) {
   let matches = await fetch(
     `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
   );
+  console.log(date);
   let responseBody = matches.json();
-  console.log(responseBody);
+  console.log("getMatches");
   return responseBody;
 }
 
@@ -384,6 +378,7 @@ app.get(`/matches/:date`, async (req, res, next) => {
     } else {
       let objectData = data.Body.toString("utf-8");
       const games = JSON.parse(objectData);
+      console.log("sending fixtures from S3");
       res.send(games);
     }
   });
@@ -813,8 +808,6 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
 
 app.get("/formtomorrowsFixtures", async (req, res, next) => {
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
-  var d = new Date();
-  var n = d.getHours();
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
@@ -822,7 +815,7 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
   console.log(fileName);
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     console.log(err);
-    if (err || n < 2) {
+    if (err) {
       console.log(n);
       console.error(err);
 
@@ -871,10 +864,9 @@ async function getO25() {
 }
 
 app.get("/over25", async (req, res, next) => {
-      let teams = await getO25();
-      res.send(teams);
+  let teams = await getO25();
+  res.send(teams);
 });
-
 
 async function getU25() {
   let teams = await fetch(
@@ -886,8 +878,8 @@ async function getU25() {
 }
 
 app.get("/under25", async (req, res, next) => {
-      let teams = await getU25();
-      res.send(teams);
+  let teams = await getU25();
+  res.send(teams);
 });
 
 const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
