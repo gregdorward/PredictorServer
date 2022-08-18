@@ -279,15 +279,15 @@ async function getLeagueStats(id) {
 }
 
 app.get(`/leagueStats/:leagueId`, (req, res, next) => {
-  let parameters = req.params;
-  let fileName = `${day}${month}${year}Stats${parameters.leagueId}.json`;
+  let leagueId = req.params;
+  let fileName = `${day}${month}${year}Stats${leagueId.leagueId}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
   s3.getObject(params, async (err, data) => {
     if (err) {
-      let league = await getLeagueStats(parameters.leagueId);
+      let league = await getLeagueStats(leagueId.leagueId);
       res.send(league);
       // next(err);
     } else {
@@ -319,6 +319,7 @@ app.get(`/leagues/:date`, (req, res, next) => {
       let objectData = data.Body.toString("utf-8");
       const leagues = JSON.parse(objectData);
       console.log("leagueData from s3");
+      console.log(leagues.leagueArray.length)
       res.send(leagues);
     }
   });
