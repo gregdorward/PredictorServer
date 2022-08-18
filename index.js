@@ -816,9 +816,7 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     console.log(err);
     if (err) {
-      console.log(n);
       console.error(err);
-
       s3.headObject(params, function (err, data) {
         if (err) {
           console.error(err);
