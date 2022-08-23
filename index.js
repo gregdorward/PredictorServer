@@ -319,7 +319,6 @@ app.get(`/leagues/:date`, (req, res, next) => {
       let objectData = data.Body.toString("utf-8");
       const leagues = JSON.parse(objectData);
       console.log("leagueData from s3");
-      console.log(leagues.leagueArray.length)
       res.send(leagues);
     }
   });
@@ -355,10 +354,10 @@ app.get(`/leagueList`, (req, res, next) => {
 });
 
 async function getMatches(date) {
+  console.log(`Get Matches date: ${date}`)
   let matches = await fetch(
     `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
   );
-  console.log(date);
   let responseBody = matches.json();
   console.log("getMatches");
   return responseBody;
@@ -367,7 +366,6 @@ async function getMatches(date) {
 app.get(`/matches/:date`, async (req, res, next) => {
   let date = req.params;
   let fileName = `matches${date.date}.json`;
-  console.log(date.date);
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
@@ -813,7 +811,6 @@ app.get("/formtomorrowsFixtures", async (req, res, next) => {
     Bucket: "predictorfiles",
     Key: fileName,
   };
-  console.log(fileName);
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     console.log(err);
     if (err) {
