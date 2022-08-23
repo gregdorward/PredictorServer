@@ -17,7 +17,7 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
-const [day, month, year] = new Date()
+let [day, month, year] = new Date()
   .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
 let tomorrowsDate = new Date();
@@ -354,7 +354,7 @@ app.get(`/leagueList`, (req, res, next) => {
 });
 
 async function getMatches(date) {
-  console.log(`Get Matches date: ${date}`)
+  console.log(`Get Matches date: ${date}`);
   let matches = await fetch(
     `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
   );
@@ -542,6 +542,9 @@ app.post("/allFormyesterdaysFixtures", (req, res, next) => {
 });
 
 app.post("/allFormtodaysFixtures", (req, res, next) => {
+  [day, month, year] = new Date()
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+  .split("/");
   console.log("post request called");
   let fileName = `allForm${day}${month}${year}.json`;
   let params = {
@@ -575,6 +578,11 @@ app.post("/allFormtodaysFixtures", (req, res, next) => {
 });
 
 app.post("/allFormtomorrowsFixtures", (req, res, next) => {
+  tomorrowsDate = new Date();
+  tomorrowsDate.setDate(new Date().getDate() + 1);
+  [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
+    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+    .split("/");
   console.log("post request called");
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
   let params = {
@@ -760,6 +768,9 @@ app.get("/formyesterdaysFixtures", async (req, res, next) => {
 });
 
 app.get("/formtodaysFixtures", async (req, res, next) => {
+  [day, month, year] = new Date()
+  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+  .split("/");
   let fileName = `allForm${day}${month}${year}.json`;
   let params = {
     Bucket: "predictorfiles",
@@ -806,6 +817,11 @@ app.get("/formtodaysFixtures", async (req, res, next) => {
 });
 
 app.get("/formtomorrowsFixtures", async (req, res, next) => {
+  tomorrowsDate = new Date();
+  tomorrowsDate.setDate(new Date().getDate() + 1);
+  [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
+    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+    .split("/");
   let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
   let params = {
     Bucket: "predictorfiles",
