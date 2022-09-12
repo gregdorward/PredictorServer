@@ -76,6 +76,7 @@ app.listen(process.env.PORT || 5000, function () {
   );
 });
 
+
 const s3 = new AWS.S3({
   accessKeyId: process.env.ID,
   secretAccessKey: process.env.SECRET,
@@ -543,8 +544,8 @@ app.post("/allFormyesterdaysFixtures", (req, res, next) => {
 
 app.post("/allFormtodaysFixtures", (req, res, next) => {
   [day, month, year] = new Date()
-  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-  .split("/");
+    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+    .split("/");
   console.log("post request called");
   let fileName = `allForm${day}${month}${year}.json`;
   let params = {
@@ -769,8 +770,8 @@ app.get("/formyesterdaysFixtures", async (req, res, next) => {
 
 app.get("/formtodaysFixtures", async (req, res, next) => {
   [day, month, year] = new Date()
-  .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-  .split("/");
+    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
+    .split("/");
   let fileName = `allForm${day}${month}${year}.json`;
   let params = {
     Bucket: "predictorfiles",
