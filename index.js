@@ -895,17 +895,17 @@ app.get("/under25", async (req, res, next) => {
   res.send(teams);
 });
 
-const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
-  console.log("TRIGGERED");
-  let response = await fetch(
-    "https://api.heroku.com/apps/pacific-depths-00420/dynos",
-    {
-      headers: {
-        Accept: "application/vnd.heroku+json; version=3",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-      },
-      method: "DELETE",
-    }
-  );
-});
+// const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
+//   console.log("TRIGGERED");
+//   let response = await fetch(
+//     "https://api.heroku.com/apps/pacific-depths-00420/dynos",
+//     {
+//       headers: {
+//         Accept: "application/vnd.heroku+json; version=3",
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+//       },
+//       method: "DELETE",
+//     }
+//   );
+// });
