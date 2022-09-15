@@ -31,6 +31,7 @@ yesterdaysDate.setDate(new Date().getDate() - 1);
 let [yesterdayDay, yesterdayMonth, yesterdayYear] = yesterdaysDate
   .toLocaleDateString("en-US", { timeZone: "Europe/London" })
   .split("/");
+let date;
 
 var d = new Date();
 
@@ -62,12 +63,6 @@ let [historicDay, historicMonth, historicYear] = historicDate
 
 const apiKey = process.env.API_KEY;
 
-const saturday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${saturdayYear}-${saturdayDay}-${saturdayMonth}`;
-const historic = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${historicYear}-${historicDay}-${historicMonth}`;
-const yesterday = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${yesterdayYear}-${yesterdayDay}-${yesterdayMonth}`;
-const today = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${year}-${day}-${month}`;
-const tomorrow = `https://api.footystats.org/todays-matches?key=${apiKey}&date=${tomorrowYear}-${tomorrowDay}-${tomorrowMonth}`;
-
 app.listen(process.env.PORT || 5000, function () {
   console.log(
     "Express server listening on port %d in %s mode",
@@ -75,7 +70,6 @@ app.listen(process.env.PORT || 5000, function () {
     app.settings.env
   );
 });
-
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.ID,
@@ -120,29 +114,6 @@ app.get("/match/:id", async (req, res) => {
   res.send(match);
 });
 
-app.get("/todaysFixtures", (req, res) => {
-  fs.readFile("today.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
-});
-
-app.get("/tomorrowsFixtures", (req, res) => {
-  fs.readFile("tomorrow.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
-});
-
-app.get("/yesterdaysFixtures", (req, res) => {
-  fs.readFile("yesterday.json", function (err, data) {
-    if (err) res.sendStatus(404);
-    const fixtures = JSON.parse(data);
-    res.send({ fixtures });
-  });
-});
 
 app.get(`/leagueData`, (req, res, next) => {
   let fileName = `leagueData${day}${month}${year}.json`;
@@ -235,42 +206,6 @@ app.get(`/tables/:leagueId/:date`, (req, res, next) => {
   });
 });
 
-// app.post(`/leagueStats/:date`, (req, res) => {
-//   let date = req.params;
-//   let fileName = `leagueStats${date.date}.json`;
-//   let params = {
-//     Bucket: "predictorfiles",
-//     Key: fileName,
-//   };
-
-//   console.log("attempting post req");
-
-//   s3.headObject(params, function (err, data) {
-//     if (err) {
-//       console.error(err);
-//       fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-//         if (err) {
-//           res.sendStatus(500);
-//           return console.log(err);
-//         } else {
-//           uploadFile(fileName, fileName);
-//           res.sendStatus(200);
-//         }
-//       });
-//     } else {
-//       console.log("league stats exist in s3, writing to local storage");
-//       fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-//         if (err) {
-//           res.sendStatus(500);
-//           return console.log(err);
-//         } else {
-//           res.sendStatus(200);
-//         }
-//       });
-//     }
-//   });
-// });
-
 async function getLeagueStats(id) {
   let league = await fetch(
     `https://api.football-data-api.com/league-season?key=${apiKey}&season_id=${id}`
@@ -356,6 +291,9 @@ app.get(`/leagueList`, (req, res, next) => {
 
 async function getMatches(date) {
   console.log(`Get Matches date: ${date}`);
+  console.log(
+    `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
+  );
   let matches = await fetch(
     `https://api.footystats.org/todays-matches?key=${apiKey}&date=${date}`
   );
@@ -371,6 +309,8 @@ app.get(`/matches/:date`, async (req, res, next) => {
     Bucket: "predictorfiles",
     Key: fileName,
   };
+
+  console.log("GET MATCHES TRIGGERED");
   s3.getObject(params, async (err, data) => {
     if (err) {
       let matchList = await getMatches(date.date);
@@ -391,7 +331,8 @@ async function getForm(team) {
   let responseBody = matches.json();
   return responseBody;
 }
-app.get(`/form/:team`, async (req, res, next) => {
+
+app.get(`/formTeam/:team`, async (req, res, next) => {
   let team = req.params;
   let fileName = `form${team.team}.json`;
   let params = {
@@ -446,9 +387,10 @@ app.post(`/leagueData`, (req, res) => {
   });
 });
 
-app.post("/allFormhistoric", (req, res, next) => {
+app.post("/allForm/:date", (req, res, next) => {
+  let date = req.params;
   console.log("post request called");
-  let fileName = `allForm${historicDay}${historicMonth}${historicYear}.json`;
+  let fileName = `allForm${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
@@ -478,154 +420,18 @@ app.post("/allFormhistoric", (req, res, next) => {
   });
 });
 
-app.post("/allFormlastSaturday", (req, res, next) => {
-  console.log("post request called");
-  let fileName = `allForm${saturdayDay}${saturdayMonth}${saturdayYear}.json`;
+app.get(`/form/:date`, async (req, res, next) => {
+  console.log("GET FORM TRIGGERED");
+
+  let date = req.params;
+  let fileName = `allForm${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
 
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-        if (err) {
-          res.sendStatus(500);
-          next(err);
-        } else {
-          s3.headObject(params, function (err, data) {
-            if (err) {
-              uploadFile(fileName, fileName);
-              res.sendStatus(200);
-            } else {
-              res.sendStatus(400);
-            }
-          });
-        }
-      });
-    } else {
-      console.log("file already exists in local storage");
-      res.sendStatus(200);
-    }
-  });
-});
+  console.log("GET FORM TRIGGERED");
 
-app.post("/allFormyesterdaysFixtures", (req, res, next) => {
-  console.log("post request called");
-  let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-        if (err) {
-          res.sendStatus(500);
-          next(err);
-        } else {
-          s3.headObject(params, function (err, data) {
-            if (err) {
-              uploadFile(fileName, fileName);
-              res.sendStatus(200);
-            } else {
-              res.sendStatus(400);
-            }
-          });
-        }
-      });
-    } else {
-      console.log("file already exists in local storage");
-      res.sendStatus(200);
-    }
-  });
-});
-
-app.post("/allFormtodaysFixtures", (req, res, next) => {
-  [day, month, year] = new Date()
-    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-    .split("/");
-  console.log("post request called");
-  let fileName = `allForm${day}${month}${year}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      console.error(err);
-      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-        if (err) {
-          res.sendStatus(500);
-          next(err);
-        } else {
-          s3.headObject(params, function (err, data) {
-            if (err) {
-              uploadFile(fileName, fileName);
-              res.sendStatus(200);
-            } else {
-              res.sendStatus(400);
-            }
-          });
-        }
-      });
-    } else {
-      console.log("file already exists in local storage");
-      res.sendStatus(200);
-    }
-  });
-});
-
-app.post("/allFormtomorrowsFixtures", (req, res, next) => {
-  tomorrowsDate = new Date();
-  tomorrowsDate.setDate(new Date().getDate() + 1);
-  [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
-    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-    .split("/");
-  console.log("post request called");
-  let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      console.error(err);
-      fs.writeFile(fileName, JSON.stringify(req.body), function (err) {
-        if (err) {
-          res.sendStatus(500);
-          next(err);
-        } else {
-          s3.headObject(params, function (err, data) {
-            if (err) {
-              uploadFile(fileName, fileName);
-              res.sendStatus(200);
-            } else {
-              res.sendStatus(400);
-            }
-          });
-        }
-      });
-    } else {
-      console.log("file already exists in local storage");
-      res.sendStatus(200);
-    }
-  });
-});
-
-app.get("/formhistoric", async (req, res, next) => {
-  let fileName = `allForm${historicDay}${historicMonth}${historicYear}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-
-  console.log("TRIGGERED");
-
-  // if previous saturdays' form is requested, get it from s3
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
       console.error(err);
@@ -668,14 +474,14 @@ app.get("/formhistoric", async (req, res, next) => {
   });
 });
 
-app.get("/formlastSaturday", async (req, res, next) => {
-  let fileName = `allForm${saturdayDay}${saturdayMonth}${saturdayYear}.json`;
+app.get(`/allForm/:date`, async (req, res, next) => {
+  date = req.params;
+  let fileName = `allForm${date.date}.json`;
   let params = {
     Bucket: "predictorfiles",
     Key: fileName,
   };
 
-  // if saturdays' form is requested, get it from s3
   fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
     if (err) {
       console.error(err);
@@ -697,6 +503,7 @@ app.get("/formlastSaturday", async (req, res, next) => {
               console.log("sending s3 data for all form");
               let objectData = data.Body.toString("utf-8");
               const form = JSON.parse(objectData);
+              console.log(form);
               res.status(201).send(form);
             }
           });
@@ -710,159 +517,11 @@ app.get("/formlastSaturday", async (req, res, next) => {
           res.sendStatus(500);
         } else {
           const form = JSON.parse(data);
+          console.log(form);
           res.send(form);
         }
       });
       console.log("returning data from local storage");
-    }
-  });
-});
-
-app.get("/formyesterdaysFixtures", async (req, res, next) => {
-  let fileName = `allForm${yesterdayDay}${yesterdayMonth}${yesterdayYear}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-
-  // if yesterdays' form is requested, get it from s3
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      console.error(err);
-      console.log("file not stored locally");
-
-      s3.headObject(params, function (err, data) {
-        console.log("checking to see if file is in s3");
-        if (err) {
-          console.log("file not found in s3");
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          s3.getObject(params, (err, data) => {
-            if (err) {
-              console.error(err);
-              res.sendStatus(404);
-              next(err);
-            } else {
-              console.log("sending s3 data for all form");
-              let objectData = data.Body.toString("utf-8");
-              const form = JSON.parse(objectData);
-              res.status(201).send(form);
-            }
-          });
-        }
-      });
-    } else {
-      fs.readFile(fileName, function (err, data) {
-        console.log(`reading and returning ${fileName}`);
-        if (err) {
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          const form = JSON.parse(data);
-          res.send(form);
-        }
-      });
-      console.log("returning data from local storage");
-    }
-  });
-});
-
-app.get("/formtodaysFixtures", async (req, res, next) => {
-  [day, month, year] = new Date()
-    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-    .split("/");
-  let fileName = `allForm${day}${month}${year}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-  console.log("Attempting to get all form");
-  // if todays' form is requested, get it from s3
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    if (err) {
-      console.error(err);
-      s3.headObject(params, function (err, data) {
-        if (err) {
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          s3.getObject(params, (err, data) => {
-            if (err) {
-              console.error(err);
-              res.sendStatus(404);
-              next(err);
-            } else {
-              console.log("sending s3 data for all form");
-              let objectData = data.Body.toString("utf-8");
-              const form = JSON.parse(objectData);
-              res.status(201).send(form);
-              // res.send(form);
-            }
-          });
-        }
-      });
-    } else {
-      fs.readFile(fileName, function (err, data) {
-        if (err) {
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          const form = JSON.parse(data);
-          res.send(form);
-        }
-      });
-      console.log("returning data from local storage");
-    }
-  });
-});
-
-app.get("/formtomorrowsFixtures", async (req, res, next) => {
-  tomorrowsDate = new Date();
-  tomorrowsDate.setDate(new Date().getDate() + 1);
-  [tomorrowDay, tomorrowMonth, tomorrowYear] = tomorrowsDate
-    .toLocaleDateString("en-US", { timeZone: "Europe/London" })
-    .split("/");
-  let fileName = `allForm${tomorrowDay}${tomorrowMonth}${tomorrowYear}.json`;
-  let params = {
-    Bucket: "predictorfiles",
-    Key: fileName,
-  };
-  fs.access(fileName, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-    console.log(err);
-    if (err) {
-      console.error(err);
-      s3.headObject(params, function (err, data) {
-        if (err) {
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          s3.getObject(params, (err, data) => {
-            if (err) {
-              console.error(err);
-              res.sendStatus(404);
-              next(err);
-            } else {
-              console.log("sending s3 data for all form");
-              let objectData = data.Body.toString("utf-8");
-              const form = JSON.parse(objectData);
-              res.status(201).send(form);
-              // res.send(form);
-            }
-          });
-        }
-      });
-    } else {
-      fs.readFile(fileName, function (err, data) {
-        if (err) {
-          console.error(err);
-          res.sendStatus(500);
-        } else {
-          const form = JSON.parse(data);
-          res.send(form);
-        }
-      });
-      console.log("returning form data from local storage");
     }
   });
 });
@@ -894,18 +553,3 @@ app.get("/under25", async (req, res, next) => {
   let teams = await getU25();
   res.send(teams);
 });
-
-// const restartDynos = schedule.scheduleJob("00 01 * * * *", async function () {
-//   console.log("TRIGGERED");
-//   let response = await fetch(
-//     "https://api.heroku.com/apps/pacific-depths-00420/dynos",
-//     {
-//       headers: {
-//         Accept: "application/vnd.heroku+json; version=3",
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-//       },
-//       method: "DELETE",
-//     }
-//   );
-// });
